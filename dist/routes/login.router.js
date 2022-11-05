@@ -19,16 +19,16 @@ exports.loginRouter = express_1.default.Router();
 exports.loginRouter.use(express_1.default.json());
 exports.loginRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log(req.body);
         const loginForm = req.body;
         if (!database_service_1.collections.users)
             throw new Error();
         const foundUser = yield database_service_1.collections.users.findOne({ email: loginForm.email });
-        console.log(foundUser);
+        if (!foundUser) {
+            res.status(404).send("User not found.");
+            return;
+        }
         res.status(200).send("blam");
-        // const result = await collections.users.insertOne(newUser);
-        // result
-        //     ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
-        //     : res.status(500).send("Failed to create a new user.");
     }
     catch (error) {
         res.status(400).send(error.message);

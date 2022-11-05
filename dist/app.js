@@ -12,6 +12,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config({ path: './config.env' });
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
+var cors = require('cors');
+app.use(cors());
 (0, database_service_1.connectToDatabase)()
     .then(() => {
     // send all calls to /games to our gamesRouter

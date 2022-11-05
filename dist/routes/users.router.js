@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const database_service_1 = require("../services/database.service");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 exports.usersRouter = express_1.default.Router();
 exports.usersRouter.use(express_1.default.json());
 exports.usersRouter.get("/", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -31,12 +32,22 @@ exports.usersRouter.get("/", (_req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser = req.body;
-        if (!database_service_1.collections.users)
-            throw new Error();
-        const result = yield database_service_1.collections.users.insertOne(newUser);
-        result
-            ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
-            : res.status(500).send("Failed to create a new user.");
+        const password = newUser.password;
+        bcrypt_1.default.hash(password, 10).then(function (hash) {
+            let encryptedPasswordUser = newUser;
+            encryptedPasswordUser.password = hash;
+            if (!database_service_1.collections.users)
+                throw new Error("No users collection.");
+            database_service_1.collections.users
+                .insertOne(encryptedPasswordUser)
+                .then(function (result) {
+                result
+                    ? res
+                        .status(201)
+                        .send(`Successfully created a new user with id ${result.insertedId}`)
+                    : res.status(500).send("Failed to create a new user.");
+            });
+        });
     }
     catch (error) {
         res.status(400).send(error.message);

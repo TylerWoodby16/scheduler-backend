@@ -13,21 +13,21 @@ loginRouter.use(express.json());
 
 loginRouter.post("/", async (req: Request, res: Response) => {
     try {
+        console.log(req.body);
+
         const loginForm = req.body as LoginForm;
 
         if(!collections.users) throw new Error();
 
         const foundUser = await collections.users.findOne({email: loginForm.email});
 
-        console.log(foundUser);
+        if (!foundUser) {
+            res.status(404).send("User not found.");
+            return;
+        }
 
         res.status(200).send("blam");
 
-        // const result = await collections.users.insertOne(newUser);
-
-        // result
-        //     ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
-        //     : res.status(500).send("Failed to create a new user.");
     } catch (error: any) {
         res.status(400).send(error.message);
     }
