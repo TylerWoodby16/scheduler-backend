@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { collections } from "../services/database.service";
-import User from "../models/user";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 interface LoginForm {
     email: string;
@@ -13,12 +14,11 @@ loginRouter.use(express.json());
 
 loginRouter.post("/", async (req: Request, res: Response) => {
     try {
-        console.log(req.body);
-
         const loginForm = req.body as LoginForm;
 
         if(!collections.users) throw new Error();
 
+        // Determine if user exists by looking them up by email.
         const foundUser = await collections.users.findOne({email: loginForm.email});
 
         if (!foundUser) {
@@ -26,7 +26,23 @@ loginRouter.post("/", async (req: Request, res: Response) => {
             return;
         }
 
-        res.status(200).send("blam");
+        // Compare password from login form with found user's password.
+        const isValidPassword = bcrypt.compareSync(loginForm.password, foundUser.password);
+        if (isValidPassword) {
+            const token = jwt.sign(
+                { 
+                    userId: foundUser._id, 
+                },
+                process.env.TOKEN_KEY!,
+                {
+                  expiresIn: "2h",
+                }
+              );
+
+            res.status(200).send({token: token});
+        } else {
+            res.status(401).send("Password incorrect.");
+        }
 
     } catch (error: any) {
         res.status(400).send(error.message);
