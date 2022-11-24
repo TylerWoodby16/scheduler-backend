@@ -1,12 +1,13 @@
 import express, { Request, Response } from "express";
 import { collections } from "../services/database.service";
 import Aircraft from "../models/aircraft";
+import { verifyToken } from "../middlewares/auth";
 
 export const aircraftsRouter = express.Router();
 
 aircraftsRouter.use(express.json());
 
-aircraftsRouter.get("/", async (_req: Request, res: Response) => {
+aircraftsRouter.get("/", verifyToken, async (_req: Request, res: Response) => {
     try {
         if(!collections.aircrafts) throw new Error();
 

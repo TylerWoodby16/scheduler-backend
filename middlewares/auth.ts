@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers["x-access-token"];
-
   if (!token) {
     return res.status(403).send("A token is required for authentication");
   }

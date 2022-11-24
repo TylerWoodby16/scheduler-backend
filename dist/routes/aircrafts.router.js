@@ -15,9 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.aircraftsRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const database_service_1 = require("../services/database.service");
+const auth_1 = require("../middlewares/auth");
 exports.aircraftsRouter = express_1.default.Router();
 exports.aircraftsRouter.use(express_1.default.json());
-exports.aircraftsRouter.get("/", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.get("/", auth_1.verifyToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!database_service_1.collections.aircrafts)
             throw new Error();
