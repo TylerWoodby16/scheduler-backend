@@ -36,9 +36,7 @@ export async function connectToDatabase() {
   collections.aircrafts = aircraftsCollection;
   collections.users = usersCollection;
 
-  console.log(
-    `Successfully connected to database: ${db.databaseName}`
-  );
+  console.log(`Successfully connected to database: ${db.databaseName}`);
 }
 
 // Update our existing collection with JSON schema validation so we know our documents will always match the shape of our aircraft model, even if added elsewhere.

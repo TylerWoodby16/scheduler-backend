@@ -5,5 +5,4 @@ export default interface User {
   lastName: string;
 
   // TODO: User permissions or security levels, etc.
-  
 }

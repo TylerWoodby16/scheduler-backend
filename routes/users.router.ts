@@ -33,7 +33,9 @@ usersRouter.post("/", async (req: Request, res: Response) => {
     if (!collections.users) throw new Error("No users collection.");
 
     await collections.users.insertOne(encryptedPasswordUser);
-    res.status(201).send(`Successfully created a new user with ecrypted password `);
+    res
+      .status(201)
+      .send(`Successfully created a new user with ecrypted password `);
   } catch (error: any) {
     res.status(400).send(error.message);
   }
