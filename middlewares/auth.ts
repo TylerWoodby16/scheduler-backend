@@ -11,9 +11,8 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     // TODO: DEFINE A TOKEN PAYLOAD TYPE.
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
     console.log(decoded);
-    req.headers["X-USER-ID"] = decoded.userId;
+    req.headers["x-user-id"] = decoded.userId;
 
-    // req.user = decoded;
   } catch (err) {
     return res.status(401).send("Invalid Token");
   }

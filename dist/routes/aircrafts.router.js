@@ -16,22 +16,26 @@ exports.aircraftsRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const database_service_1 = require("../services/database.service");
 const auth_1 = require("../middlewares/auth");
+const mongodb_1 = require("mongodb");
 exports.aircraftsRouter = express_1.default.Router();
 exports.aircraftsRouter.use(express_1.default.json());
-exports.aircraftsRouter.get("/", auth_1.verifyToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!database_service_1.collections.aircrafts)
             throw new Error();
-        const aircrafts = yield database_service_1.collections.aircrafts.find({}).toArray();
+        const userId = req.headers["x-user-id"];
+        const aircrafts = yield database_service_1.collections.aircrafts.find({ userId: new mongodb_1.ObjectId(userId) }).toArray();
         res.status(200).send(aircrafts);
     }
     catch (error) {
         res.status(500).send(error.message);
     }
 }));
-exports.aircraftsRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newAircraft = req.body;
+        const userId = req.headers["x-user-id"];
+        newAircraft.userId = new mongodb_1.ObjectId(userId);
         if (!database_service_1.collections.aircrafts)
             throw new Error();
         const result = yield database_service_1.collections.aircrafts.insertOne(newAircraft);
@@ -84,32 +88,27 @@ exports.aircraftsRouter.put("/updateMany/:name", (req, res) => __awaiter(void 0,
         res.status(400).send(error.message);
     }
 }));
-exports.aircraftsRouter.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
-    const id = Number((_c = req === null || req === void 0 ? void 0 : req.params) === null || _c === void 0 ? void 0 : _c.id);
-    try {
-        const query = { _id: id };
-        if (!database_service_1.collections.aircrafts)
-            throw new Error();
-        const result = yield database_service_1.collections.aircrafts.deleteOne(query);
-        if (result && result.deletedCount) {
-            res.status(202).send(`Successfully removed game with id ${id}`);
-        }
-        else if (!result) {
-            res.status(400).send(`Failed to remove game with id ${id}`);
-        }
-        else if (!result.deletedCount) {
-            res.status(404).send(`Game with id ${id} does not exist`);
-        }
-    }
-    catch (error) {
-        console.error(error.message);
-        res.status(400).send(error.message);
-    }
-}));
+// aircraftsRouter.delete("/:id", async (req: Request, res: Response) => {
+//     const id = Number(req?.params?.id);
+//     try {
+//         const query = { _id: id };
+//         if(!collections.aircrafts) throw new Error();
+//         const result = await collections.aircrafts.deleteOne(query);
+//         if (result && result.deletedCount) {
+//             res.status(202).send(`Successfully removed game with id ${id}`);
+//         } else if (!result) {
+//             res.status(400).send(`Failed to remove game with id ${id}`);
+//         } else if (!result.deletedCount) {
+//             res.status(404).send(`Game with id ${id} does not exist`);
+//         }
+//     } catch (error: any) {
+//         console.error(error.message);
+//         res.status(400).send(error.message);
+//     }
+// });
 exports.aircraftsRouter.delete("/deleteMany/:name", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
-    const name = (_d = req === null || req === void 0 ? void 0 : req.params) === null || _d === void 0 ? void 0 : _d.name;
+    var _c;
+    const name = (_c = req === null || req === void 0 ? void 0 : req.params) === null || _c === void 0 ? void 0 : _c.name;
     try {
         const query = { name: name };
         if (!database_service_1.collections.aircrafts)

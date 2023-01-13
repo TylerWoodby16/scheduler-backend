@@ -2,16 +2,19 @@ import express, { Request, Response } from "express";
 import { collections } from "../services/database.service";
 import Aircraft from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
+import { ObjectId } from "mongodb";
 
 export const aircraftsRouter = express.Router();
 
 aircraftsRouter.use(express.json());
 
-aircraftsRouter.get("/", verifyToken, async (_req: Request, res: Response) => {
+aircraftsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
     try {
         if(!collections.aircrafts) throw new Error();
 
-        const aircrafts = await collections.aircrafts.find({}).toArray();
+        const userId = req.headers["x-user-id"] as string;
+
+        const aircrafts = await collections.aircrafts.find({userId: new ObjectId(userId)}).toArray();
 
         res.status(200).send(aircrafts);
     } catch (error: any) {
@@ -19,9 +22,11 @@ aircraftsRouter.get("/", verifyToken, async (_req: Request, res: Response) => {
     }
 });
 
-aircraftsRouter.post("/", async (req: Request, res: Response) => {
+aircraftsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
     try {
         const newAircraft = req.body as Aircraft;
+        const userId = req.headers["x-user-id"] as string;
+        newAircraft.userId = new ObjectId(userId);
 
         if(!collections.aircrafts) throw new Error();
 
@@ -79,26 +84,26 @@ aircraftsRouter.put("/updateMany/:name", async (req: Request, res: Response) => 
     }
 });
 
-aircraftsRouter.delete("/:id", async (req: Request, res: Response) => {
-    const id = Number(req?.params?.id);
+// aircraftsRouter.delete("/:id", async (req: Request, res: Response) => {
+//     const id = Number(req?.params?.id);
 
-    try {
-        const query = { _id: id };
-        if(!collections.aircrafts) throw new Error();
-        const result = await collections.aircrafts.deleteOne(query);
+//     try {
+//         const query = { _id: id };
+//         if(!collections.aircrafts) throw new Error();
+//         const result = await collections.aircrafts.deleteOne(query);
 
-        if (result && result.deletedCount) {
-            res.status(202).send(`Successfully removed game with id ${id}`);
-        } else if (!result) {
-            res.status(400).send(`Failed to remove game with id ${id}`);
-        } else if (!result.deletedCount) {
-            res.status(404).send(`Game with id ${id} does not exist`);
-        }
-    } catch (error: any) {
-        console.error(error.message);
-        res.status(400).send(error.message);
-    }
-});
+//         if (result && result.deletedCount) {
+//             res.status(202).send(`Successfully removed game with id ${id}`);
+//         } else if (!result) {
+//             res.status(400).send(`Failed to remove game with id ${id}`);
+//         } else if (!result.deletedCount) {
+//             res.status(404).send(`Game with id ${id} does not exist`);
+//         }
+//     } catch (error: any) {
+//         console.error(error.message);
+//         res.status(400).send(error.message);
+//     }
+// });
 
 aircraftsRouter.delete("/deleteMany/:name", async (req: Request, res: Response) => {
     const name = req?.params?.name;

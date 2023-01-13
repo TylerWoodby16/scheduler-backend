@@ -3,4 +3,7 @@ export default interface User {
   password: string;
   firstName: string;
   lastName: string;
+
+  // TODO: User permissions or security levels, etc.
+  
 }

@@ -45,6 +45,6 @@ loginRouter.post("/", async (req: Request, res: Response) => {
         }
 
     } catch (error: any) {
-        res.status(400).send(error.message);
+        res.status(500).send(error.message);
     }
 });

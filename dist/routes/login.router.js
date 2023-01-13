@@ -45,6 +45,6 @@ exports.loginRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
         }
     }
     catch (error) {
-        res.status(400).send(error.message);
+        res.status(500).send(error.message);
     }
 }));
