@@ -15,7 +15,7 @@ loginRouter.use(express.json());
 loginRouter.post("/", async (req: Request, res: Response) => {
   try {
     const loginForm = req.body as LoginForm;
-
+    
     if (!collections.users) throw new Error();
 
     // Determine if user exists by looking them up by email.

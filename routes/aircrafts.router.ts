@@ -46,29 +46,146 @@ aircraftsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
-aircraftsRouter.put("/:id", async (req: Request, res: Response) => {
-  const id = req?.params?.id;
+aircraftsRouter.put(
+  "/bruteUpsert",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      // make variable with mongo query to findall aircraft names
+      // if statement comparing the newAircraft name against the variable we just made
+      // if it matches update
+      // if it does not match insert
 
-  // We need to enforce that id in params matches id in request body.
+      // if the request body (the aircraft) contains an ID -> update
+      // if the request body doesn't contain an ID -> insert
 
-  try {
-    const updatedAircraft = req.body as Aircraft;
-    const query = { _id: updatedAircraft._id };
+      if (!collections.aircrafts) throw new Error();
 
-    // $set adds or updates all fields
-    if (!collections.aircrafts) throw new Error();
-    const result = await collections.aircrafts.updateOne(query, {
-      $set: updatedAircraft,
-    });
+      const allAircrafts = await collections.aircrafts.find({}).toArray();
 
-    result
-      ? res.status(200).send(`Successfully updated game with id ${id}`)
-      : res.status(304).send(`Game with id: ${id} not updated`);
-  } catch (error: any) {
-    console.error(error.message);
-    res.status(400).send(error.message);
+      let ticker = false;
+
+      const newAircraft = req.body as Aircraft;
+      const userId = req.headers["x-user-id"] as string;
+      newAircraft.userId = new ObjectId(userId);
+
+      allAircrafts.forEach((aircraft) => {
+        if (aircraft.name == newAircraft.name) {
+          ticker = true;
+        }
+      });
+
+      if (ticker) {
+        const query = { name: newAircraft.name };
+        const result = await collections.aircrafts.updateOne(query, {
+          $set: { year: newAircraft.year },
+        });
+
+        // respond with status code
+        result
+          ? res.status(201).send(
+              //?
+              `Successfully created a new aircraft with id`
+            )
+          : res.status(500).send("Failed to create a new aircraft.");
+      } else {
+        // the standard insert
+        const result = await collections.aircrafts.insertOne(newAircraft);
+
+        result
+          ? res.status(201).send(
+              //?
+              `Successfully created a new aircraft with id ${result.insertedId}`
+            )
+          : res.status(500).send("Failed to create a new aircraft.");
+      }
+    } catch (error: any) {
+      res.status(400).send(error.message);
+    }
   }
-});
+);
+
+aircraftsRouter.put(
+  "/gentleUpsert",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    // USE THIS TECHNIQUE FOR THIS ENDPOINT
+    // if the request body (the aircraft) contains an ID -> update
+    // if the request body doesn't contain an ID -> insert
+
+    if (!collections.aircrafts) throw new Error();
+
+    const newAircraft = req.body as Aircraft;
+
+    if (newAircraft._id.toString() != "") {
+      try {
+        const query = { _id: new ObjectId(newAircraft._id) };
+
+        //if name exists, then update the year.
+        const result = await collections.aircrafts.updateOne(query, {
+          $set: { year: newAircraft.year },
+        });
+
+        // in update case, also make sure to respond with the correct status code.
+        result
+          ? res.status(200).send(`Successfully created a new aircraft with id`)
+          : res.status(500).send("Failed to create a new aircraft.");
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("Failed to update aircraft.");
+      }
+    } else {
+      //the standard insert
+      try {
+        const userId = req.headers["x-user-id"] as string;
+        newAircraft.userId = new ObjectId(userId);
+        newAircraft._id = new ObjectId();
+
+        const result = await collections.aircrafts.insertOne(newAircraft);
+        result
+          ? res
+              .status(201)
+              .send(
+                `Successfully created a new aircraft with id ${result.insertedId}`
+              )
+          : res.status(500).send("Failed to create a new aircraft.");
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("Failed to create new aircraft.");
+      }
+    }
+  }
+);
+
+aircraftsRouter.put(
+  "/:id",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    const userId = req.headers["x-user-id"] as string;
+
+    const id = req?.params?.id;
+
+    // We need to enforce that id in params matches id in request body.
+
+    try {
+      const updatedAircraft = req.body as Aircraft;
+      const query = { _id: updatedAircraft._id };
+
+      // $set adds or updates all fields
+      if (!collections.aircrafts) throw new Error();
+      const result = await collections.aircrafts.updateOne(query, {
+        $set: updatedAircraft,
+      });
+
+      result
+        ? res.status(200).send(`Successfully updated game with id ${id}`)
+        : res.status(304).send(`Game with id: ${id} not updated`);
+    } catch (error: any) {
+      console.error(error.message);
+      res.status(400).send(error.message);
+    }
+  }
+);
 
 aircraftsRouter.put(
   "/updateMany/:name",
@@ -86,6 +203,7 @@ aircraftsRouter.put(
       const result = await collections.aircrafts.updateMany(query, {
         $set: { year: update.year },
       });
+
       // updating aircraft by req.body on line 65 could cause issues
       result
         ? res.status(200).send(`Successfully updated`)

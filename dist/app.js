@@ -1,9 +1,7 @@
 "use strict";
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const database_service_1 = require("./services/database.service");
@@ -17,17 +15,17 @@ const port = process.env.PORT || 5000;
 var cors = require("cors");
 app.use(cors());
 (0, database_service_1.connectToDatabase)()
-  .then(() => {
+    .then(() => {
     // send all calls to /games to our gamesRouter
     app.use("/aircrafts", aircrafts_router_1.aircraftsRouter);
     app.use("/users", users_router_1.usersRouter);
     app.use("/login", login_router_1.loginRouter);
     // start the Express server
     app.listen(port, () => {
-      console.log(`Server started at http://localhost:${port}`);
+        console.log(`Server started at http://localhost:${port}`);
     });
-  })
-  .catch((error) => {
+})
+    .catch((error) => {
     console.error("Database connection failed", error);
     process.exit();
-  });
+});
