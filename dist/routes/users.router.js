@@ -40,6 +40,7 @@ exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
         encryptedPasswordUser.password = bcrypt_1.default.hashSync(password, 10);
         if (!database_service_1.collections.users)
             throw new Error("No users collection.");
+        // give user a role  when not hardcoding
         yield database_service_1.collections.users.insertOne(encryptedPasswordUser);
         res
             .status(201)

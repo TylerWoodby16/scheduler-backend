@@ -32,6 +32,8 @@ usersRouter.post("/", async (req: Request, res: Response) => {
     encryptedPasswordUser.password = bcrypt.hashSync(password, 10);
     if (!collections.users) throw new Error("No users collection.");
 
+    // give user a role  when not hardcoding
+
     await collections.users.insertOne(encryptedPasswordUser);
     res
       .status(201)

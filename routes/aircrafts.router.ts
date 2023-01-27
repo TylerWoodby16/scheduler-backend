@@ -3,6 +3,7 @@ import { collections } from "../services/database.service";
 import Aircraft from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
+import { adminOnly } from "../middlewares/adminCheck";
 
 export const aircraftsRouter = express.Router();
 
@@ -108,6 +109,7 @@ aircraftsRouter.put(
 aircraftsRouter.put(
   "/gentleUpsert",
   verifyToken,
+  adminOnly,
   async (req: Request, res: Response) => {
     // USE THIS TECHNIQUE FOR THIS ENDPOINT
     // if the request body (the aircraft) contains an ID -> update
@@ -188,7 +190,7 @@ aircraftsRouter.put(
 );
 
 aircraftsRouter.put(
-  "/updateMany/:name",
+  "/updateMany/:name/:more/:stuff",
   async (req: Request, res: Response) => {
     const name = req?.params?.name;
 
@@ -215,43 +217,26 @@ aircraftsRouter.put(
   }
 );
 
-// aircraftsRouter.delete("/:id", async (req: Request, res: Response) => {
-//     const id = Number(req?.params?.id);
-
-//     try {
-//         const query = { _id: id };
-//         if(!collections.aircrafts) throw new Error();
-//         const result = await collections.aircrafts.deleteOne(query);
-
-//         if (result && result.deletedCount) {
-//             res.status(202).send(`Successfully removed game with id ${id}`);
-//         } else if (!result) {
-//             res.status(400).send(`Failed to remove game with id ${id}`);
-//         } else if (!result.deletedCount) {
-//             res.status(404).send(`Game with id ${id} does not exist`);
-//         }
-//     } catch (error: any) {
-//         console.error(error.message);
-//         res.status(400).send(error.message);
-//     }
-// });
-
 aircraftsRouter.delete(
-  "/deleteMany/:name",
+  "/:id",
+  verifyToken,
   async (req: Request, res: Response) => {
-    const name = req?.params?.name;
+    const id = req.params.id;
+    const userId = req.headers["x-user-id"] as string;
+
+    if (!collections.aircrafts) throw new Error();
+
+    const query = { _id: new ObjectId(id), userId: new ObjectId(userId) };
+
+    const result = await collections.aircrafts.deleteOne(query);
 
     try {
-      const query = { name: name };
-      if (!collections.aircrafts) throw new Error();
-      const result = await collections.aircrafts.deleteMany(query);
-
       if (result && result.deletedCount) {
-        res.status(202).send(`Successfully removed with names ${name}`);
+        res.status(202).send(`Successfully removed game with id `);
       } else if (!result) {
-        res.status(400).send(`Failed to remove with name ${name}`);
+        res.status(400).send(`Failed to remove game with id `);
       } else if (!result.deletedCount) {
-        res.status(404).send(`Airplane with name ${name} does not exist`);
+        res.status(404).send(`Aircraft with id does not exist`);
       }
     } catch (error: any) {
       console.error(error.message);
@@ -259,3 +244,27 @@ aircraftsRouter.delete(
     }
   }
 );
+
+// aircraftsRouter.delete(
+//   "/deleteMany/:name",
+//   async (req: Request, res: Response) => {
+//     const name = req?.params?.name;
+
+//     try {
+//       const query = { name: name };
+//       if (!collections.aircrafts) throw new Error();
+//       const result = await collections.aircrafts.deleteMany(query);
+
+//       if (result && result.deletedCount) {
+//         res.status(202).send(`Successfully removed with names ${name}`);
+//       } else if (!result) {
+//         res.status(400).send(`Failed to remove with name ${name}`);
+//       } else if (!result.deletedCount) {
+//         res.status(404).send(`Airplane with name ${name} does not exist`);
+//       }
+//     } catch (error: any) {
+//       console.error(error.message);
+//       res.status(400).send(error.message);
+//     }
+//   }
+// );

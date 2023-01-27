@@ -4,6 +4,9 @@ export default interface User {
   firstName: string;
   lastName: string;
 
+  // TODO: THIS IS WIP
+  role: "Admin" | "CFI" | "User";
+
   // TODO: User permissions or security levels, etc.
 
   // Create a structure (intentionally vague) that the frontend and backend will
@@ -15,4 +18,11 @@ export default interface User {
   // IT, IT WILL FAIL.
 
   // should probably use a middleware in the backend (similar-ish to the auth middleware)
+
+  // TODO: Add groupId concept. Users are associated with groups. Actions are based on group, not userId.
+  // Step 1 - add groupId to user during login.
+  // ----- as a first pass, add a field to the user signup flow.
+  // Step 2 - Add groupId to planes. All planes must be associated with a group.
+  // When we perform ANY operation (post, put, get, delete), they should be "associated"/"restricted" based on groupId.
+  // HINT: Remember that we can add more headers in the auth middleware if we want.
 }

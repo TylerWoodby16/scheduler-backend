@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { collections } from "../services/database.service";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import User from "../models/user";
 
 interface LoginForm {
   email: string;
@@ -15,7 +16,7 @@ loginRouter.use(express.json());
 loginRouter.post("/", async (req: Request, res: Response) => {
   try {
     const loginForm = req.body as LoginForm;
-    
+
     if (!collections.users) throw new Error();
 
     // Determine if user exists by looking them up by email.
@@ -37,6 +38,7 @@ loginRouter.post("/", async (req: Request, res: Response) => {
       const token = jwt.sign(
         {
           userId: foundUser._id,
+          userRole: foundUser.role,
         },
         process.env.TOKEN_KEY!,
         {

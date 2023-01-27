@@ -17,6 +17,7 @@ const express_1 = __importDefault(require("express"));
 const database_service_1 = require("../services/database.service");
 const auth_1 = require("../middlewares/auth");
 const mongodb_1 = require("mongodb");
+const adminCheck_1 = require("../middlewares/adminCheck");
 exports.aircraftsRouter = express_1.default.Router();
 exports.aircraftsRouter.use(express_1.default.json());
 exports.aircraftsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -97,7 +98,7 @@ exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __
         res.status(400).send(error.message);
     }
 }));
-exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.adminOnly, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // USE THIS TECHNIQUE FOR THIS ENDPOINT
     // if the request body (the aircraft) contains an ID -> update
     // if the request body doesn't contain an ID -> insert
@@ -163,7 +164,7 @@ exports.aircraftsRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(
         res.status(400).send(error.message);
     }
 }));
-exports.aircraftsRouter.put("/updateMany/:name", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.put("/updateMany/:name/:more/:stuff", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const name = (_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.name;
     // We need to enforce that id in params matches id in request body.
@@ -186,40 +187,22 @@ exports.aircraftsRouter.put("/updateMany/:name", (req, res) => __awaiter(void 0,
         res.status(400).send(error.message);
     }
 }));
-// aircraftsRouter.delete("/:id", async (req: Request, res: Response) => {
-//     const id = Number(req?.params?.id);
-//     try {
-//         const query = { _id: id };
-//         if(!collections.aircrafts) throw new Error();
-//         const result = await collections.aircrafts.deleteOne(query);
-//         if (result && result.deletedCount) {
-//             res.status(202).send(`Successfully removed game with id ${id}`);
-//         } else if (!result) {
-//             res.status(400).send(`Failed to remove game with id ${id}`);
-//         } else if (!result.deletedCount) {
-//             res.status(404).send(`Game with id ${id} does not exist`);
-//         }
-//     } catch (error: any) {
-//         console.error(error.message);
-//         res.status(400).send(error.message);
-//     }
-// });
-exports.aircraftsRouter.delete("/deleteMany/:name", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
-    const name = (_c = req === null || req === void 0 ? void 0 : req.params) === null || _c === void 0 ? void 0 : _c.name;
+exports.aircraftsRouter.delete("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const userId = req.headers["x-user-id"];
+    if (!database_service_1.collections.aircrafts)
+        throw new Error();
+    const query = { _id: new mongodb_1.ObjectId(id), userId: new mongodb_1.ObjectId(userId) };
+    const result = yield database_service_1.collections.aircrafts.deleteOne(query);
     try {
-        const query = { name: name };
-        if (!database_service_1.collections.aircrafts)
-            throw new Error();
-        const result = yield database_service_1.collections.aircrafts.deleteMany(query);
         if (result && result.deletedCount) {
-            res.status(202).send(`Successfully removed with names ${name}`);
+            res.status(202).send(`Successfully removed game with id `);
         }
         else if (!result) {
-            res.status(400).send(`Failed to remove with name ${name}`);
+            res.status(400).send(`Failed to remove game with id `);
         }
         else if (!result.deletedCount) {
-            res.status(404).send(`Airplane with name ${name} does not exist`);
+            res.status(404).send(`Aircraft with id does not exist`);
         }
     }
     catch (error) {
@@ -227,3 +210,24 @@ exports.aircraftsRouter.delete("/deleteMany/:name", (req, res) => __awaiter(void
         res.status(400).send(error.message);
     }
 }));
+// aircraftsRouter.delete(
+//   "/deleteMany/:name",
+//   async (req: Request, res: Response) => {
+//     const name = req?.params?.name;
+//     try {
+//       const query = { name: name };
+//       if (!collections.aircrafts) throw new Error();
+//       const result = await collections.aircrafts.deleteMany(query);
+//       if (result && result.deletedCount) {
+//         res.status(202).send(`Successfully removed with names ${name}`);
+//       } else if (!result) {
+//         res.status(400).send(`Failed to remove with name ${name}`);
+//       } else if (!result.deletedCount) {
+//         res.status(404).send(`Airplane with name ${name} does not exist`);
+//       }
+//     } catch (error: any) {
+//       console.error(error.message);
+//       res.status(400).send(error.message);
+//     }
+//   }
+// );
