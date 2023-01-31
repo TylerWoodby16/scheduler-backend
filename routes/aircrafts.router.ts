@@ -4,6 +4,7 @@ import Aircraft from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
 import { adminOnly } from "../middlewares/adminCheck";
+import { groupOnly } from "../middlewares/groupCheck";
 
 export const aircraftsRouter = express.Router();
 
@@ -13,10 +14,10 @@ aircraftsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
   try {
     if (!collections.aircrafts) throw new Error();
 
-    const userId = req.headers["x-user-id"] as string;
+    const groupId = req.headers["x-group-id"] as string;
 
     const aircrafts = await collections.aircrafts
-      .find({ userId: new ObjectId(userId) })
+      .find({ groupId: new ObjectId(groupId) })
       .toArray();
 
     res.status(200).send(aircrafts);
@@ -28,8 +29,8 @@ aircraftsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
 aircraftsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
     const newAircraft = req.body as Aircraft;
-    const userId = req.headers["x-user-id"] as string;
-    newAircraft.userId = new ObjectId(userId);
+    const groupId = req.headers["x-group-id"] as string;
+    newAircraft.groupId = new ObjectId(groupId);
 
     if (!collections.aircrafts) throw new Error();
 
@@ -110,6 +111,7 @@ aircraftsRouter.put(
   "/gentleUpsert",
   verifyToken,
   adminOnly,
+  groupOnly,
   async (req: Request, res: Response) => {
     // USE THIS TECHNIQUE FOR THIS ENDPOINT
     // if the request body (the aircraft) contains an ID -> update
@@ -140,8 +142,13 @@ aircraftsRouter.put(
       //the standard insert
       try {
         const userId = req.headers["x-user-id"] as string;
+        const groupId = req.headers["x-group-id"] as string;
+        // uh oh do i have to insert group id ?? did or does it come when i insert it initially
         newAircraft.userId = new ObjectId(userId);
         newAircraft._id = new ObjectId();
+        //newAircraft.groupId = groupId;
+
+        // this is where the problem lies ??? maybe not
 
         const result = await collections.aircrafts.insertOne(newAircraft);
         result

@@ -1,11 +1,8 @@
 import { ObjectId } from "mongodb";
 
-export default interface Aircraft {
+export default interface Group {
   _id: ObjectId;
-  userId: ObjectId;
-  groupId: ObjectId;
   name: string;
-  year: number;
 }
 
 // on front end: form will contain name field and year field

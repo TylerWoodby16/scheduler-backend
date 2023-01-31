@@ -51,9 +51,11 @@ function connectToDatabase() {
         // Connect to the collection with the specific name from .env, found in the database previously specified
         const aircraftsCollection = db.collection(process.env.AIRCRAFTS_COLLECTION_NAME);
         const usersCollection = db.collection(process.env.USERS_COLLECTION_NAME);
+        const groupsCollection = db.collection(process.env.GROUPS_COLLECTION_NAME);
         // Persist the connection to the aircrafts collection
         exports.collections.aircrafts = aircraftsCollection;
         exports.collections.users = usersCollection;
+        exports.collections.groups = groupsCollection;
         console.log(`Successfully connected to database: ${db.databaseName}`);
     });
 }

@@ -17,6 +17,7 @@ const express_1 = __importDefault(require("express"));
 const database_service_1 = require("../services/database.service");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_1 = require("../middlewares/auth");
+const mongodb_1 = require("mongodb");
 exports.usersRouter = express_1.default.Router();
 exports.usersRouter.use(express_1.default.json());
 exports.usersRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,14 +35,22 @@ exports.usersRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0,
 exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser = req.body;
-        const password = newUser.password;
-        // Use bcrypt to encrypt user password.
-        let encryptedPasswordUser = newUser;
-        encryptedPasswordUser.password = bcrypt_1.default.hashSync(password, 10);
         if (!database_service_1.collections.users)
             throw new Error("No users collection.");
-        // give user a role  when not hardcoding
-        yield database_service_1.collections.users.insertOne(encryptedPasswordUser);
+        if (!database_service_1.collections.groups)
+            throw new Error("No groups collection.");
+        const group = { _id: new mongodb_1.ObjectId(), name: "mga" };
+        yield database_service_1.collections.groups.insertOne(group);
+        const completeUser = {
+            _id: new mongodb_1.ObjectId(),
+            email: newUser.email,
+            password: bcrypt_1.default.hashSync(newUser.password, 10),
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            groupId: group._id,
+            role: "Admin",
+        };
+        yield database_service_1.collections.users.insertOne(completeUser);
         res
             .status(201)
             .send(`Successfully created a new user with ecrypted password `);

@@ -2,10 +2,12 @@ import * as mongoDB from "mongodb";
 import * as dotenv from "dotenv";
 import Aircraft from "../models/aircraft";
 import User from "../models/user";
+import Group from "../models/group";
 
 export const collections: {
   aircrafts?: mongoDB.Collection<Aircraft>;
   users?: mongoDB.Collection<User>;
+  groups?: mongoDB.Collection<Group>;
 } = {};
 
 export async function connectToDatabase() {
@@ -31,10 +33,14 @@ export async function connectToDatabase() {
   const usersCollection = db.collection<User>(
     process.env.USERS_COLLECTION_NAME!
   );
+  const groupsCollection = db.collection<Group>(
+    process.env.GROUPS_COLLECTION_NAME!
+  );
 
   // Persist the connection to the aircrafts collection
   collections.aircrafts = aircraftsCollection;
   collections.users = usersCollection;
+  collections.groups = groupsCollection;
 
   console.log(`Successfully connected to database: ${db.databaseName}`);
 }

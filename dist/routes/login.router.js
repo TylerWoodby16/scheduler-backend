@@ -38,6 +38,7 @@ exports.loginRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
             const token = jsonwebtoken_1.default.sign({
                 userId: foundUser._id,
                 userRole: foundUser.role,
+                groupId: foundUser.groupId,
             }, process.env.TOKEN_KEY, {
                 expiresIn: "2h",
             });

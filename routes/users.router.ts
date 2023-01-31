@@ -3,6 +3,8 @@ import { collections } from "../services/database.service";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import { verifyToken } from "../middlewares/auth";
+import Group from "../models/group";
+import { ObjectId } from "mongodb";
 
 export const usersRouter = express.Router();
 
@@ -25,16 +27,24 @@ usersRouter.get("/", verifyToken, async (req: Request, res: Response) => {
 usersRouter.post("/", async (req: Request, res: Response) => {
   try {
     const newUser = req.body as User;
-    const password = newUser.password;
 
-    // Use bcrypt to encrypt user password.
-    let encryptedPasswordUser = newUser;
-    encryptedPasswordUser.password = bcrypt.hashSync(password, 10);
     if (!collections.users) throw new Error("No users collection.");
+    if (!collections.groups) throw new Error("No groups collection.");
 
-    // give user a role  when not hardcoding
+    const group = { _id: new ObjectId(), name: "mga" };
+    await collections.groups.insertOne(group);
 
-    await collections.users.insertOne(encryptedPasswordUser);
+    const completeUser: User = {
+      _id: new ObjectId(),
+      email: newUser.email,
+      password: bcrypt.hashSync(newUser.password, 10), // Use bcrypt to encrypt user password.
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      groupId: group._id,
+      role: "Admin",
+    };
+
+    await collections.users.insertOne(completeUser);
     res
       .status(201)
       .send(`Successfully created a new user with ecrypted password `);

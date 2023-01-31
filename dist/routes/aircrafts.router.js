@@ -18,15 +18,16 @@ const database_service_1 = require("../services/database.service");
 const auth_1 = require("../middlewares/auth");
 const mongodb_1 = require("mongodb");
 const adminCheck_1 = require("../middlewares/adminCheck");
+const groupCheck_1 = require("../middlewares/groupCheck");
 exports.aircraftsRouter = express_1.default.Router();
 exports.aircraftsRouter.use(express_1.default.json());
 exports.aircraftsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!database_service_1.collections.aircrafts)
             throw new Error();
-        const userId = req.headers["x-user-id"];
+        const groupId = req.headers["x-group-id"];
         const aircrafts = yield database_service_1.collections.aircrafts
-            .find({ userId: new mongodb_1.ObjectId(userId) })
+            .find({ groupId: new mongodb_1.ObjectId(groupId) })
             .toArray();
         res.status(200).send(aircrafts);
     }
@@ -37,8 +38,8 @@ exports.aircraftsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(voi
 exports.aircraftsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newAircraft = req.body;
-        const userId = req.headers["x-user-id"];
-        newAircraft.userId = new mongodb_1.ObjectId(userId);
+        const groupId = req.headers["x-group-id"];
+        newAircraft.groupId = new mongodb_1.ObjectId(groupId);
         if (!database_service_1.collections.aircrafts)
             throw new Error();
         const result = yield database_service_1.collections.aircrafts.insertOne(newAircraft);
@@ -98,7 +99,7 @@ exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __
         res.status(400).send(error.message);
     }
 }));
-exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.adminOnly, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.adminOnly, groupCheck_1.groupOnly, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // USE THIS TECHNIQUE FOR THIS ENDPOINT
     // if the request body (the aircraft) contains an ID -> update
     // if the request body doesn't contain an ID -> insert
@@ -126,8 +127,12 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
         //the standard insert
         try {
             const userId = req.headers["x-user-id"];
+            const groupId = req.headers["x-group-id"];
+            // uh oh do i have to insert group id ?? did or does it come when i insert it initially
             newAircraft.userId = new mongodb_1.ObjectId(userId);
             newAircraft._id = new mongodb_1.ObjectId();
+            //newAircraft.groupId = groupId;
+            // this is where the problem lies ??? maybe not
             const result = yield database_service_1.collections.aircrafts.insertOne(newAircraft);
             result
                 ? res

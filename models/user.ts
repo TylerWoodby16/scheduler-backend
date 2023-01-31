@@ -1,8 +1,13 @@
+import { ObjectId } from "mongodb";
+
 export default interface User {
+  //TODO: WHY NO _id ON THE USER??
+  _id: ObjectId;
   email: string;
   password: string;
   firstName: string;
   lastName: string;
+  groupId: ObjectId;
 
   // TODO: THIS IS WIP
   role: "Admin" | "CFI" | "User";
