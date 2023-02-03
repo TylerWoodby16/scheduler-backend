@@ -62,8 +62,13 @@ aircraftsRouter.put(
       // if the request body doesn't contain an ID -> insert
 
       if (!collections.aircrafts) throw new Error();
+      const groupId = req.headers["x-group-id"] as string;
 
-      const allAircrafts = await collections.aircrafts.find({}).toArray();
+      const aircrafts = await collections.aircrafts;
+
+      const allAircrafts = await collections.aircrafts
+        .find({ groupId: new ObjectId(groupId) })
+        .toArray();
 
       let ticker = false;
 

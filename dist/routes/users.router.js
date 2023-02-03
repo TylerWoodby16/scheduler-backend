@@ -39,7 +39,17 @@ exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
             throw new Error("No users collection.");
         if (!database_service_1.collections.groups)
             throw new Error("No groups collection.");
-        const group = { _id: new mongodb_1.ObjectId(), name: "mga" };
+        const group = { _id: new mongodb_1.ObjectId(), name: "mga" }; // TODO: DON'T HARDCODE NAME IN THE FUTURE.
+        // TODO: MAYBE CHECK THE RESULT OF THESE TWO DATABASE OPERATIONS.
+        // TODO: set up these two operations in a TRANSACTION.
+        // open the database connection
+        // queue up operation one
+        // queue up operation two
+        // queue up operation ...
+        // perform ALL operations
+        // if all succeed -> success
+        // if ANY fail -> failure
+        // -- if there is a failure, ALL of the previous operations will be ROLLED BACK.
         yield database_service_1.collections.groups.insertOne(group);
         const completeUser = {
             _id: new mongodb_1.ObjectId(),
