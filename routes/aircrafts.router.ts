@@ -4,7 +4,6 @@ import Aircraft from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
 import { adminOnly } from "../middlewares/adminCheck";
-import { groupOnly } from "../middlewares/groupCheck";
 
 export const aircraftsRouter = express.Router();
 
@@ -64,7 +63,7 @@ aircraftsRouter.put(
       if (!collections.aircrafts) throw new Error();
       const groupId = req.headers["x-group-id"] as string;
 
-      const aircrafts = await collections.aircrafts;
+      // const aircrafts = await collections.aircrafts; why did we rename it here ?
 
       const allAircrafts = await collections.aircrafts
         .find({ groupId: new ObjectId(groupId) })
@@ -116,19 +115,36 @@ aircraftsRouter.put(
   "/gentleUpsert",
   verifyToken,
   adminOnly,
-  groupOnly,
+  // groupOnly,
   async (req: Request, res: Response) => {
+    // make variable with mongo query to findall aircraft names
+    // if statement comparing the newAircraft name against the variable we just made
+    // if it matches update
+    // if it does not match insert
+
+    // if the request body (the aircraft) contains an ID -> update
+    // if the request body doesn't contain an ID -> insert
+
+    //this is where the groupId insert ends
+
     // USE THIS TECHNIQUE FOR THIS ENDPOINT
     // if the request body (the aircraft) contains an ID -> update
     // if the request body doesn't contain an ID -> insert
 
     if (!collections.aircrafts) throw new Error();
 
-    const newAircraft = req.body as Aircraft;
+    let newAircraft = req.body as Aircraft;
+    const groupId = req.headers["x-group-id"] as string;
+
+    // i beleive we will need to get the group id here, and add a second param to the search
+    //newAircraft.groupId = new ObjectId(groupId);
 
     if (newAircraft._id.toString() != "") {
       try {
-        const query = { _id: new ObjectId(newAircraft._id) };
+        const query = {
+          _id: new ObjectId(newAircraft._id),
+          groupId: new ObjectId(groupId),
+        };
 
         //if name exists, then update the year.
         const result = await collections.aircrafts.updateOne(query, {
@@ -150,8 +166,8 @@ aircraftsRouter.put(
         const groupId = req.headers["x-group-id"] as string;
         // uh oh do i have to insert group id ?? did or does it come when i insert it initially
         newAircraft.userId = new ObjectId(userId);
-        newAircraft._id = new ObjectId();
-        //newAircraft.groupId = groupId;
+        // newAircraft._id = new ObjectId(groupId);
+        newAircraft.groupId = new ObjectId(groupId);
 
         // this is where the problem lies ??? maybe not
 

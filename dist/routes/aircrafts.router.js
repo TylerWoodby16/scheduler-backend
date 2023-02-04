@@ -18,7 +18,6 @@ const database_service_1 = require("../services/database.service");
 const auth_1 = require("../middlewares/auth");
 const mongodb_1 = require("mongodb");
 const adminCheck_1 = require("../middlewares/adminCheck");
-const groupCheck_1 = require("../middlewares/groupCheck");
 exports.aircraftsRouter = express_1.default.Router();
 exports.aircraftsRouter.use(express_1.default.json());
 exports.aircraftsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -63,7 +62,11 @@ exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __
         // if the request body doesn't contain an ID -> insert
         if (!database_service_1.collections.aircrafts)
             throw new Error();
-        const allAircrafts = yield database_service_1.collections.aircrafts.find({}).toArray();
+        const groupId = req.headers["x-group-id"];
+        // const aircrafts = await collections.aircrafts; why did we rename it here ?
+        const allAircrafts = yield database_service_1.collections.aircrafts
+            .find({ groupId: new mongodb_1.ObjectId(groupId) })
+            .toArray();
         let ticker = false;
         const newAircraft = req.body;
         const userId = req.headers["x-user-id"];
@@ -99,16 +102,31 @@ exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __
         res.status(400).send(error.message);
     }
 }));
-exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.adminOnly, groupCheck_1.groupOnly, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.adminOnly, 
+// groupOnly,
+(req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // make variable with mongo query to findall aircraft names
+    // if statement comparing the newAircraft name against the variable we just made
+    // if it matches update
+    // if it does not match insert
+    // if the request body (the aircraft) contains an ID -> update
+    // if the request body doesn't contain an ID -> insert
+    //this is where the groupId insert ends
     // USE THIS TECHNIQUE FOR THIS ENDPOINT
     // if the request body (the aircraft) contains an ID -> update
     // if the request body doesn't contain an ID -> insert
     if (!database_service_1.collections.aircrafts)
         throw new Error();
-    const newAircraft = req.body;
+    let newAircraft = req.body;
+    const groupId = req.headers["x-group-id"];
+    // i beleive we will need to get the group id here, and add a second param to the search
+    //newAircraft.groupId = new ObjectId(groupId);
     if (newAircraft._id.toString() != "") {
         try {
-            const query = { _id: new mongodb_1.ObjectId(newAircraft._id) };
+            const query = {
+                _id: new mongodb_1.ObjectId(newAircraft._id),
+                groupId: new mongodb_1.ObjectId(groupId),
+            };
             //if name exists, then update the year.
             const result = yield database_service_1.collections.aircrafts.updateOne(query, {
                 $set: { year: newAircraft.year },
@@ -130,8 +148,8 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
             const groupId = req.headers["x-group-id"];
             // uh oh do i have to insert group id ?? did or does it come when i insert it initially
             newAircraft.userId = new mongodb_1.ObjectId(userId);
-            newAircraft._id = new mongodb_1.ObjectId();
-            //newAircraft.groupId = groupId;
+            // newAircraft._id = new ObjectId(groupId);
+            newAircraft.groupId = new mongodb_1.ObjectId(groupId);
             // this is where the problem lies ??? maybe not
             const result = yield database_service_1.collections.aircrafts.insertOne(newAircraft);
             result

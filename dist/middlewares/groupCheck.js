@@ -15,7 +15,7 @@ const groupOnly = (req, res, next) => {
         // doesnt even get here ??
         console.log(groupId);
         // have a funny feeling about req.body.aircraft.groupId
-        if (groupId == req.body.aircraft.groupId) {
+        if (groupId == req.body.groupId) {
             next();
         }
         else {
