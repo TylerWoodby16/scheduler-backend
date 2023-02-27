@@ -39,6 +39,7 @@ exports.loginRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
                 userId: foundUser._id,
                 userRole: foundUser.role,
                 groupId: foundUser.groupId,
+                userName: foundUser.firstName,
             }, process.env.TOKEN_KEY, {
                 expiresIn: "2h",
             });

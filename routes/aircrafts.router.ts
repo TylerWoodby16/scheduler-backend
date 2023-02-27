@@ -25,6 +25,28 @@ aircraftsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
+aircraftsRouter.get(
+  "/:id",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      if (!collections.aircrafts) throw new Error();
+      const id = req.params.id;
+      console.log(req.params.id);
+      const groupId = req.headers["x-group-id"] as string;
+
+      const aircraft = await collections.aircrafts.findOne({
+        _id: new ObjectId(id),
+        groupId: new ObjectId(groupId),
+      });
+
+      res.status(200).send(aircraft);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
+  }
+);
+
 aircraftsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
     const newAircraft = req.body as Aircraft;

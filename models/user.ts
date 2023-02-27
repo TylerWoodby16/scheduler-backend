@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb";
 
 export default interface User {
-  //TODO: WHY NO _id ON THE USER??
   _id: ObjectId;
   email: string;
   password: string;

@@ -40,6 +40,7 @@ loginRouter.post("/", async (req: Request, res: Response) => {
           userId: foundUser._id,
           userRole: foundUser.role,
           groupId: foundUser.groupId,
+          userName: foundUser.firstName,
         },
         process.env.TOKEN_KEY!,
         {

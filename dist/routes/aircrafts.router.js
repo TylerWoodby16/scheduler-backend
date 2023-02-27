@@ -34,6 +34,23 @@ exports.aircraftsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(voi
         res.status(500).send(error.message);
     }
 }));
+exports.aircraftsRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!database_service_1.collections.aircrafts)
+            throw new Error();
+        const id = req.params.id;
+        console.log(req.params.id);
+        const groupId = req.headers["x-group-id"];
+        const aircraft = yield database_service_1.collections.aircrafts.findOne({
+            _id: new mongodb_1.ObjectId(id),
+            groupId: new mongodb_1.ObjectId(groupId),
+        });
+        res.status(200).send(aircraft);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
 exports.aircraftsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newAircraft = req.body;
