@@ -6,6 +6,7 @@ export default interface Aircraft {
   groupId: ObjectId;
   name: string;
   year: number;
+  annualCheckDate: Date;
 }
 
 // on front end: form will contain name field and year field

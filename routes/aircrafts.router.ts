@@ -50,6 +50,7 @@ aircraftsRouter.get(
 aircraftsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
     const newAircraft = req.body as Aircraft;
+    newAircraft._id = new ObjectId();
     const groupId = req.headers["x-group-id"] as string;
     newAircraft.groupId = new ObjectId(groupId);
 

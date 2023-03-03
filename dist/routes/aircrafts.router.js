@@ -54,6 +54,7 @@ exports.aircraftsRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(
 exports.aircraftsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newAircraft = req.body;
+        newAircraft._id = new mongodb_1.ObjectId();
         const groupId = req.headers["x-group-id"];
         newAircraft.groupId = new mongodb_1.ObjectId(groupId);
         if (!database_service_1.collections.aircrafts)
