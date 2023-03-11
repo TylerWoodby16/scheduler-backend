@@ -39,7 +39,6 @@ exports.aircraftsRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(
         if (!database_service_1.collections.aircrafts)
             throw new Error();
         const id = req.params.id;
-        console.log(req.params.id);
         const groupId = req.headers["x-group-id"];
         const aircraft = yield database_service_1.collections.aircrafts.findOne({
             _id: new mongodb_1.ObjectId(id),
@@ -155,7 +154,6 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
                 : res.status(500).send("Failed to create a new aircraft.");
         }
         catch (error) {
-            console.log(error);
             res.status(500).send("Failed to update aircraft.");
         }
     }
@@ -177,7 +175,6 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
                 : res.status(500).send("Failed to create a new aircraft.");
         }
         catch (error) {
-            console.log(error);
             res.status(500).send("Failed to create new aircraft.");
         }
     }

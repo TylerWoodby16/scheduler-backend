@@ -32,7 +32,6 @@ aircraftsRouter.get(
     try {
       if (!collections.aircrafts) throw new Error();
       const id = req.params.id;
-      console.log(req.params.id);
       const groupId = req.headers["x-group-id"] as string;
 
       const aircraft = await collections.aircrafts.findOne({
@@ -179,7 +178,6 @@ aircraftsRouter.put(
           ? res.status(200).send(`Successfully created a new aircraft with id`)
           : res.status(500).send("Failed to create a new aircraft.");
       } catch (error) {
-        console.log(error);
         res.status(500).send("Failed to update aircraft.");
       }
     } else {
@@ -203,7 +201,6 @@ aircraftsRouter.put(
               )
           : res.status(500).send("Failed to create a new aircraft.");
       } catch (error) {
-        console.log(error);
         res.status(500).send("Failed to create new aircraft.");
       }
     }
