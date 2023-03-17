@@ -7,6 +7,12 @@ export default interface Aircraft {
   name: string;
   year: number;
   annualCheckDate: Date;
+  vorCheckDate: Date;
+  oneHundredHourCheck: number;
+  airWorthinessDirectivesCheckDate: Date;
+  eltCheckDate: Date;
+  transponderCheckDate: Date;
+  altimeterCheckDate: Date;
 }
 
 // on front end: form will contain name field and year field
