@@ -24,7 +24,6 @@ exports.usersRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0,
     try {
         if (!database_service_1.collections.users)
             throw new Error();
-        const userId = req.headers["X-USER-ID"];
         const users = yield database_service_1.collections.users.find({}).toArray();
         res.status(200).send(users);
     }

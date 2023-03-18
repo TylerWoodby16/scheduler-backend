@@ -3,7 +3,6 @@ import { collections } from "../services/database.service";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import { verifyToken } from "../middlewares/auth";
-import Group from "../models/group";
 import { ObjectId } from "mongodb";
 
 export const usersRouter = express.Router();
@@ -13,8 +12,6 @@ usersRouter.use(express.json());
 usersRouter.get("/", verifyToken, async (req: Request, res: Response) => {
   try {
     if (!collections.users) throw new Error();
-
-    const userId = req.headers["X-USER-ID"];
 
     const users = await collections.users.find({}).toArray();
 

@@ -94,8 +94,6 @@ aircraftsRouter.put(
       let ticker = false;
 
       const newAircraft = req.body as Aircraft;
-      const userId = req.headers["x-user-id"] as string;
-      newAircraft.userId = new ObjectId(userId);
 
       allAircrafts.forEach((aircraft) => {
         if (aircraft.name == newAircraft.name) {
@@ -183,10 +181,8 @@ aircraftsRouter.put(
     } else {
       //the standard insert
       try {
-        const userId = req.headers["x-user-id"] as string;
         const groupId = req.headers["x-group-id"] as string;
-        // uh oh do i have to insert group id ?? did or does it come when i insert it initially
-        newAircraft.userId = new ObjectId(userId);
+
         // newAircraft._id = new ObjectId(groupId);
         newAircraft.groupId = new ObjectId(groupId);
 
@@ -211,8 +207,6 @@ aircraftsRouter.put(
   "/:id",
   verifyToken,
   async (req: Request, res: Response) => {
-    const userId = req.headers["x-user-id"] as string;
-
     const id = req?.params?.id;
 
     // We need to enforce that id in params matches id in request body.
@@ -270,11 +264,11 @@ aircraftsRouter.delete(
   verifyToken,
   async (req: Request, res: Response) => {
     const id = req.params.id;
-    const userId = req.headers["x-user-id"] as string;
+    const groupId = req.headers["x-group-id"] as string;
 
     if (!collections.aircrafts) throw new Error();
 
-    const query = { _id: new ObjectId(id), userId: new ObjectId(userId) };
+    const query = { _id: new ObjectId(id), groupId: new ObjectId(groupId) };
 
     const result = await collections.aircrafts.deleteOne(query);
 

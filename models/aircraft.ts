@@ -2,7 +2,6 @@ import { ObjectId } from "mongodb";
 
 export default interface Aircraft {
   _id: ObjectId;
-  userId: ObjectId;
   groupId: ObjectId;
   name: string;
   year: number;

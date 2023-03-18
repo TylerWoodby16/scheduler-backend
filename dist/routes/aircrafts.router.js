@@ -86,8 +86,6 @@ exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __
             .toArray();
         let ticker = false;
         const newAircraft = req.body;
-        const userId = req.headers["x-user-id"];
-        newAircraft.userId = new mongodb_1.ObjectId(userId);
         allAircrafts.forEach((aircraft) => {
             if (aircraft.name == newAircraft.name) {
                 ticker = true;
@@ -160,10 +158,7 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
     else {
         //the standard insert
         try {
-            const userId = req.headers["x-user-id"];
             const groupId = req.headers["x-group-id"];
-            // uh oh do i have to insert group id ?? did or does it come when i insert it initially
-            newAircraft.userId = new mongodb_1.ObjectId(userId);
             // newAircraft._id = new ObjectId(groupId);
             newAircraft.groupId = new mongodb_1.ObjectId(groupId);
             // this is where the problem lies ??? maybe not
@@ -181,7 +176,6 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
 }));
 exports.aircraftsRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const userId = req.headers["x-user-id"];
     const id = (_a = req === null || req === void 0 ? void 0 : req.params) === null || _a === void 0 ? void 0 : _a.id;
     // We need to enforce that id in params matches id in request body.
     try {
@@ -227,10 +221,10 @@ exports.aircraftsRouter.put("/updateMany/:name/:more/:stuff", (req, res) => __aw
 }));
 exports.aircraftsRouter.delete("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const userId = req.headers["x-user-id"];
+    const groupId = req.headers["x-group-id"];
     if (!database_service_1.collections.aircrafts)
         throw new Error();
-    const query = { _id: new mongodb_1.ObjectId(id), userId: new mongodb_1.ObjectId(userId) };
+    const query = { _id: new mongodb_1.ObjectId(id), groupId: new mongodb_1.ObjectId(groupId) };
     const result = yield database_service_1.collections.aircrafts.deleteOne(query);
     try {
         if (result && result.deletedCount) {

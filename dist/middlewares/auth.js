@@ -10,7 +10,6 @@ const verifyToken = (req, res, next) => {
     try {
         // TODO: DEFINE A TOKEN PAYLOAD TYPE.
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-        req.headers["x-user-id"] = decoded.userId;
         req.headers["x-group-id"] = decoded.groupId;
     }
     catch (err) {
