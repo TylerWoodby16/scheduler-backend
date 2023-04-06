@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { collections } from "../services/database.service";
-import Aircraft from "../models/aircraft";
+import Aircraft, { AirworthinessDirective } from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
 import { adminOnly } from "../middlewares/adminCheck";
@@ -69,6 +69,67 @@ aircraftsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
+// make new endpoint wiht new /name
+// keep group id
+// add ad (that we got from the request) to the current ad array of the aircraft
+// update the aircraft
+// respond with proper status code
+aircraftsRouter.put(
+  "/updateAD/:id",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    if (!collections.aircrafts) throw new Error();
+    const groupId = req.headers["x-group-id"] as string;
+
+    const newAD = req.body as AirworthinessDirective;
+    console.log(newAD);
+    const id = req.params.id;
+    console.log(id);
+
+    try {
+      const aircraft = await collections.aircrafts.findOne({
+        groupId: new ObjectId(groupId),
+        _id: new ObjectId(id),
+      });
+      console.log(groupId);
+      console.log(id);
+
+      // TODO: TEMPORARY. NEED PROPER ERROR HANDLING IF AIRCRAFT NOT FOUND.
+
+      if (aircraft == null) throw new Error();
+      console.log(aircraft);
+
+      let newADs = aircraft.airWorthinessDirectives;
+      if (newADs == null) {
+        newADs = [];
+        newADs.push(newAD);
+        console.log("empty array");
+      } else {
+        newADs.push(newAD);
+        console.log(newADs);
+        console.log("here");
+      }
+
+      const query = { _id: aircraft._id, groupId: new ObjectId(groupId) };
+      const result = await collections.aircrafts.updateOne(query, {
+        $set: {
+          airWorthinessDirectives: newADs,
+        },
+      });
+
+      result
+        ? res.status(201).send(
+            //?
+            `Successfully created a new AD field`
+          )
+        : res.status(500).send("Failed to create a new AD field.");
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("catch erro for AD");
+    }
+  }
+);
+
 aircraftsRouter.put(
   "/bruteUpsert",
   verifyToken,
@@ -104,7 +165,9 @@ aircraftsRouter.put(
       if (ticker) {
         const query = { name: newAircraft.name };
         const result = await collections.aircrafts.updateOne(query, {
-          $set: { year: newAircraft.year },
+          $set: {
+            year: newAircraft.year,
+          },
         });
 
         // respond with status code
@@ -217,13 +280,13 @@ aircraftsRouter.put(
 
       // $set adds or updates all fields
       if (!collections.aircrafts) throw new Error();
-      const result = await collections.aircrafts.updateOne(query, {
-        $set: updatedAircraft,
-      });
+      // const result = await collections.aircrafts.updateOne(query, {
+      //   $set: updatedAircraft,
+      // });
 
-      result
-        ? res.status(200).send(`Successfully updated game with id ${id}`)
-        : res.status(304).send(`Game with id: ${id} not updated`);
+      // result
+      //   ? res.status(200).send(`Successfully updated game with id ${id}`)
+      //   : res.status(304).send(`Game with id: ${id} not updated`);
     } catch (error: any) {
       console.error(error.message);
       res.status(400).send(error.message);

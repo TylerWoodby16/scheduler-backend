@@ -69,6 +69,58 @@ exports.aircraftsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(vo
         res.status(400).send(error.message);
     }
 }));
+// make new endpoint wiht new /name
+// keep group id
+// add ad (that we got from the request) to the current ad array of the aircraft
+// update the aircraft
+// respond with proper status code
+exports.aircraftsRouter.put("/updateAD/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!database_service_1.collections.aircrafts)
+        throw new Error();
+    const groupId = req.headers["x-group-id"];
+    const newAD = req.body;
+    console.log(newAD);
+    const id = req.params.id;
+    console.log(id);
+    try {
+        const aircraft = yield database_service_1.collections.aircrafts.findOne({
+            groupId: new mongodb_1.ObjectId(groupId),
+            _id: new mongodb_1.ObjectId(id),
+        });
+        console.log(groupId);
+        console.log(id);
+        // TODO: TEMPORARY. NEED PROPER ERROR HANDLING IF AIRCRAFT NOT FOUND.
+        if (aircraft == null)
+            throw new Error();
+        console.log(aircraft);
+        let newADs = aircraft.airWorthinessDirectives;
+        if (newADs == null) {
+            newADs = [];
+            newADs.push(newAD);
+            console.log("empty array");
+        }
+        else {
+            newADs.push(newAD);
+            console.log(newADs);
+            console.log("here");
+        }
+        const query = { _id: aircraft._id, groupId: new mongodb_1.ObjectId(groupId) };
+        const result = yield database_service_1.collections.aircrafts.updateOne(query, {
+            $set: {
+                airWorthinessDirectives: newADs,
+            },
+        });
+        result
+            ? res.status(201).send(
+            //?
+            `Successfully created a new AD field`)
+            : res.status(500).send("Failed to create a new AD field.");
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send("catch erro for AD");
+    }
+}));
 exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // make variable with mongo query to findall aircraft names
@@ -94,7 +146,9 @@ exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __
         if (ticker) {
             const query = { name: newAircraft.name };
             const result = yield database_service_1.collections.aircrafts.updateOne(query, {
-                $set: { year: newAircraft.year },
+                $set: {
+                    year: newAircraft.year,
+                },
             });
             // respond with status code
             result
@@ -184,12 +238,12 @@ exports.aircraftsRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(
         // $set adds or updates all fields
         if (!database_service_1.collections.aircrafts)
             throw new Error();
-        const result = yield database_service_1.collections.aircrafts.updateOne(query, {
-            $set: updatedAircraft,
-        });
-        result
-            ? res.status(200).send(`Successfully updated game with id ${id}`)
-            : res.status(304).send(`Game with id: ${id} not updated`);
+        // const result = await collections.aircrafts.updateOne(query, {
+        //   $set: updatedAircraft,
+        // });
+        // result
+        //   ? res.status(200).send(`Successfully updated game with id ${id}`)
+        //   : res.status(304).send(`Game with id: ${id} not updated`);
     }
     catch (error) {
         console.error(error.message);
