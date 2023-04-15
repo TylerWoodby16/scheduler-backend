@@ -79,35 +79,24 @@ exports.aircraftsRouter.put("/updateAD/:id", auth_1.verifyToken, (req, res) => _
         throw new Error();
     const groupId = req.headers["x-group-id"];
     const newAD = req.body;
-    console.log(newAD);
     const id = req.params.id;
-    console.log(id);
     try {
         const aircraft = yield database_service_1.collections.aircrafts.findOne({
             groupId: new mongodb_1.ObjectId(groupId),
             _id: new mongodb_1.ObjectId(id),
         });
-        console.log(groupId);
-        console.log(id);
         // TODO: TEMPORARY. NEED PROPER ERROR HANDLING IF AIRCRAFT NOT FOUND.
         if (aircraft == null)
             throw new Error();
-        console.log(aircraft);
-        let newADs = aircraft.airWorthinessDirectives;
+        let newADs = aircraft.airworthinessDirectives;
         if (newADs == null) {
             newADs = [];
-            newADs.push(newAD);
-            console.log("empty array");
         }
-        else {
-            newADs.push(newAD);
-            console.log(newADs);
-            console.log("here");
-        }
+        newADs.push(newAD);
         const query = { _id: aircraft._id, groupId: new mongodb_1.ObjectId(groupId) };
         const result = yield database_service_1.collections.aircrafts.updateOne(query, {
             $set: {
-                airWorthinessDirectives: newADs,
+                airworthinessDirectives: newADs,
             },
         });
         result
@@ -118,7 +107,7 @@ exports.aircraftsRouter.put("/updateAD/:id", auth_1.verifyToken, (req, res) => _
     }
     catch (err) {
         console.log(err);
-        res.status(500).send("catch erro for AD");
+        res.status(500).send("catch error for adding AD");
     }
 }));
 exports.aircraftsRouter.put("/bruteUpsert", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -231,19 +220,23 @@ exports.aircraftsRouter.put("/gentleUpsert", auth_1.verifyToken, adminCheck_1.ad
 exports.aircraftsRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const id = (_a = req === null || req === void 0 ? void 0 : req.params) === null || _a === void 0 ? void 0 : _a.id;
+    const groupId = req.headers["x-group-id"];
     // We need to enforce that id in params matches id in request body.
     try {
         const updatedAircraft = req.body;
-        const query = { _id: updatedAircraft._id };
-        // $set adds or updates all fields
+        const query = {
+            _id: new mongodb_1.ObjectId(id),
+            groupId: new mongodb_1.ObjectId(groupId),
+        };
         if (!database_service_1.collections.aircrafts)
             throw new Error();
-        // const result = await collections.aircrafts.updateOne(query, {
-        //   $set: updatedAircraft,
-        // });
-        // result
-        //   ? res.status(200).send(`Successfully updated game with id ${id}`)
-        //   : res.status(304).send(`Game with id: ${id} not updated`);
+        // TODO: WHY DO WE HAVE TO DO THIS??
+        updatedAircraft._id = new mongodb_1.ObjectId(updatedAircraft._id);
+        updatedAircraft.groupId = new mongodb_1.ObjectId(updatedAircraft.groupId);
+        const result = yield database_service_1.collections.aircrafts.findOneAndReplace(query, updatedAircraft);
+        result
+            ? res.status(200).send(`Successfully updated aircraft with id ${id}`)
+            : res.status(304).send(`Aircraft with id: ${id} not updated`);
     }
     catch (error) {
         console.error(error.message);

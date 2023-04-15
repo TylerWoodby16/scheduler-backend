@@ -8,19 +8,19 @@ export default interface Aircraft {
   annualCheckDate: Date;
   vorCheckDate: Date;
   oneHundredHourCheck: number;
-  airWorthinessDirectives: AirworthinessDirective[];
+  airworthinessDirectives?: AirworthinessDirective[];
   eltCheckDate: Date;
   transponderCheckDate: Date;
   altimeterCheckDate: Date;
 }
 
 export interface AirworthinessDirective {
-  name?: string;
+  name: string;
   dateOfCheck?: string;
   dateOfNextCheck?: string;
   hourCheck?: number;
   hourNextCheck?: number;
-  isHour?: boolean;
+  isHour: boolean;
 }
 
 // on front end: form will contain name field and year field

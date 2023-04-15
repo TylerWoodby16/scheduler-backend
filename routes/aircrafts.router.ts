@@ -82,38 +82,30 @@ aircraftsRouter.put(
     const groupId = req.headers["x-group-id"] as string;
 
     const newAD = req.body as AirworthinessDirective;
-    console.log(newAD);
+
     const id = req.params.id;
-    console.log(id);
 
     try {
       const aircraft = await collections.aircrafts.findOne({
         groupId: new ObjectId(groupId),
         _id: new ObjectId(id),
       });
-      console.log(groupId);
-      console.log(id);
 
       // TODO: TEMPORARY. NEED PROPER ERROR HANDLING IF AIRCRAFT NOT FOUND.
 
       if (aircraft == null) throw new Error();
-      console.log(aircraft);
 
-      let newADs = aircraft.airWorthinessDirectives;
+      let newADs = aircraft.airworthinessDirectives;
       if (newADs == null) {
         newADs = [];
-        newADs.push(newAD);
-        console.log("empty array");
-      } else {
-        newADs.push(newAD);
-        console.log(newADs);
-        console.log("here");
       }
+
+      newADs.push(newAD);
 
       const query = { _id: aircraft._id, groupId: new ObjectId(groupId) };
       const result = await collections.aircrafts.updateOne(query, {
         $set: {
-          airWorthinessDirectives: newADs,
+          airworthinessDirectives: newADs,
         },
       });
 
@@ -125,7 +117,7 @@ aircraftsRouter.put(
         : res.status(500).send("Failed to create a new AD field.");
     } catch (err) {
       console.log(err);
-      res.status(500).send("catch erro for AD");
+      res.status(500).send("catch error for adding AD");
     }
   }
 );
@@ -217,6 +209,7 @@ aircraftsRouter.put(
     if (!collections.aircrafts) throw new Error();
 
     let newAircraft = req.body as Aircraft;
+
     const groupId = req.headers["x-group-id"] as string;
 
     // i beleive we will need to get the group id here, and add a second param to the search
@@ -271,22 +264,31 @@ aircraftsRouter.put(
   verifyToken,
   async (req: Request, res: Response) => {
     const id = req?.params?.id;
+    const groupId = req.headers["x-group-id"] as string;
 
     // We need to enforce that id in params matches id in request body.
-
     try {
       const updatedAircraft = req.body as Aircraft;
-      const query = { _id: updatedAircraft._id };
 
-      // $set adds or updates all fields
+      const query = {
+        _id: new ObjectId(id),
+        groupId: new ObjectId(groupId),
+      };
+
       if (!collections.aircrafts) throw new Error();
-      // const result = await collections.aircrafts.updateOne(query, {
-      //   $set: updatedAircraft,
-      // });
 
-      // result
-      //   ? res.status(200).send(`Successfully updated game with id ${id}`)
-      //   : res.status(304).send(`Game with id: ${id} not updated`);
+      // TODO: WHY DO WE HAVE TO DO THIS??
+      updatedAircraft._id = new ObjectId(updatedAircraft._id);
+      updatedAircraft.groupId = new ObjectId(updatedAircraft.groupId);
+
+      const result = await collections.aircrafts.findOneAndReplace(
+        query,
+        updatedAircraft
+      );
+
+      result
+        ? res.status(200).send(`Successfully updated aircraft with id ${id}`)
+        : res.status(304).send(`Aircraft with id: ${id} not updated`);
     } catch (error: any) {
       console.error(error.message);
       res.status(400).send(error.message);
