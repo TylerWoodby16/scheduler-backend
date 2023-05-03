@@ -21,6 +21,22 @@ usersRouter.get("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
+// Getting one User
+usersRouter.get("/:id", verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!collections.users) throw new Error();
+    const id = req.params.id;
+
+    const users = await collections.users.findOne({
+      _id: new ObjectId(id),
+    });
+
+    res.status(200).send(users);
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+});
+
 usersRouter.post("/", async (req: Request, res: Response) => {
   try {
     const newUser = req.body as User;

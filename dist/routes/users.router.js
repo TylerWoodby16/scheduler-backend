@@ -31,6 +31,21 @@ exports.usersRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0,
         res.status(500).send(error.message);
     }
 }));
+// Getting one User
+exports.usersRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!database_service_1.collections.users)
+            throw new Error();
+        const id = req.params.id;
+        const users = yield database_service_1.collections.users.findOne({
+            _id: new mongodb_1.ObjectId(id),
+        });
+        res.status(200).send(users);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
 exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser = req.body;
