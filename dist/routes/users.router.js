@@ -37,8 +37,10 @@ exports.usersRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(void
         if (!database_service_1.collections.users)
             throw new Error();
         const id = req.params.id;
+        const groupId = req.headers["x-group-id"];
         const users = yield database_service_1.collections.users.findOne({
             _id: new mongodb_1.ObjectId(id),
+            groupId: new mongodb_1.ObjectId(groupId),
         });
         res.status(200).send(users);
     }
@@ -80,6 +82,35 @@ exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
             .send(`Successfully created a new user with ecrypted password `);
     }
     catch (error) {
+        res.status(400).send(error.message);
+    }
+}));
+exports.usersRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let id = req.body._id;
+    const groupId = req.headers["x-group-id"];
+    try {
+        let user = req.body;
+        const query = {
+            _id: new mongodb_1.ObjectId(id),
+            groupId: new mongodb_1.ObjectId(groupId),
+        };
+        // ENSURE PARAMS ID AND BODY ID MATCH
+        // if(id !== req.params.id) {
+        //   // THROW ERROR AND RETURN
+        // }
+        if (!database_service_1.collections.users)
+            throw new Error("No users collection.");
+        // TODO: WHY DO WE HAVE TO DO THIS??
+        user._id = new mongodb_1.ObjectId(user._id);
+        user.groupId = new mongodb_1.ObjectId(user.groupId);
+        let updateResult = yield database_service_1.collections.users.findOneAndReplace(query, user);
+        console.log(updateResult);
+        updateResult
+            ? res.status(200).send(`Successfully updated user with id ${id}`)
+            : res.status(304).send(`User with id: ${id} not updated`);
+    }
+    catch (error) {
+        console.error(error.message);
         res.status(400).send(error.message);
     }
 }));

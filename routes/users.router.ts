@@ -1,9 +1,10 @@
-import express, { Request, Response } from "express";
+import express, { Request, response, Response } from "express";
 import { collections } from "../services/database.service";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
+import { runInNewContext } from "vm";
 
 export const usersRouter = express.Router();
 
@@ -26,9 +27,11 @@ usersRouter.get("/:id", verifyToken, async (req: Request, res: Response) => {
   try {
     if (!collections.users) throw new Error();
     const id = req.params.id;
+    const groupId = req.headers["x-group-id"] as string;
 
     const users = await collections.users.findOne({
       _id: new ObjectId(id),
+      groupId: new ObjectId(groupId),
     });
 
     res.status(200).send(users);
@@ -75,6 +78,39 @@ usersRouter.post("/", async (req: Request, res: Response) => {
       .status(201)
       .send(`Successfully created a new user with ecrypted password `);
   } catch (error: any) {
+    res.status(400).send(error.message);
+  }
+});
+
+usersRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
+  let id = req.body._id;
+  const groupId = req.headers["x-group-id"] as string;
+
+  try {
+    let user = req.body as User;
+    const query = {
+      _id: new ObjectId(id),
+      groupId: new ObjectId(groupId),
+    };
+    // ENSURE PARAMS ID AND BODY ID MATCH
+    // if(id !== req.params.id) {
+    //   // THROW ERROR AND RETURN
+    // }
+
+    if (!collections.users) throw new Error("No users collection.");
+
+    // TODO: WHY DO WE HAVE TO DO THIS??
+    user._id = new ObjectId(user._id);
+    user.groupId = new ObjectId(user.groupId);
+
+    let updateResult = await collections.users.findOneAndReplace(query, user);
+    console.log(updateResult);
+
+    updateResult
+      ? res.status(200).send(`Successfully updated user with id ${id}`)
+      : res.status(304).send(`User with id: ${id} not updated`);
+  } catch (error: any) {
+    console.error(error.message);
     res.status(400).send(error.message);
   }
 });

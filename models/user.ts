@@ -7,6 +7,7 @@ export default interface User {
   firstName: string;
   lastName: string;
   groupId: ObjectId;
+  emergencyContact?: EmergencyContact;
 
   // TODO: THIS IS WIP
   role: "Admin" | "CFI" | "User";
@@ -29,4 +30,9 @@ export default interface User {
   // Step 2 - Add groupId to planes. All planes must be associated with a group.
   // When we perform ANY operation (post, put, get, delete), they should be "associated"/"restricted" based on groupId.
   // HINT: Remember that we can add more headers in the auth middleware if we want.
+}
+export interface EmergencyContact {
+  name: string;
+  phone: string;
+  relationship: string;
 }
