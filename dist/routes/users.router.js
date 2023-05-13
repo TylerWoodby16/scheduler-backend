@@ -94,10 +94,11 @@ exports.usersRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(void
             _id: new mongodb_1.ObjectId(id),
             groupId: new mongodb_1.ObjectId(groupId),
         };
-        // ENSURE PARAMS ID AND BODY ID MATCH
-        // if(id !== req.params.id) {
-        //   // THROW ERROR AND RETURN
-        // }
+        // Enforce that URL params and request body ID match.
+        if (id !== req.params.id) {
+            res.status(400).send("Param Id does not match req body Id");
+            return;
+        }
         if (!database_service_1.collections.users)
             throw new Error("No users collection.");
         // TODO: WHY DO WE HAVE TO DO THIS??
@@ -107,7 +108,7 @@ exports.usersRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(void
         console.log(updateResult);
         updateResult
             ? res.status(200).send(`Successfully updated user with id ${id}`)
-            : res.status(304).send(`User with id: ${id} not updated`);
+            : res.status(404).send(`User with id: ${id} not found`);
     }
     catch (error) {
         console.error(error.message);

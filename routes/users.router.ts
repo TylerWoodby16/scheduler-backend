@@ -92,10 +92,12 @@ usersRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
       _id: new ObjectId(id),
       groupId: new ObjectId(groupId),
     };
-    // ENSURE PARAMS ID AND BODY ID MATCH
-    // if(id !== req.params.id) {
-    //   // THROW ERROR AND RETURN
-    // }
+
+    // Enforce that URL params and request body ID match.
+    if (id !== req.params.id) {
+      res.status(400).send("Param Id does not match req body Id");
+      return;
+    }
 
     if (!collections.users) throw new Error("No users collection.");
 
@@ -108,7 +110,7 @@ usersRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
 
     updateResult
       ? res.status(200).send(`Successfully updated user with id ${id}`)
-      : res.status(304).send(`User with id: ${id} not updated`);
+      : res.status(404).send(`User with id: ${id} not found`);
   } catch (error: any) {
     console.error(error.message);
     res.status(400).send(error.message);
