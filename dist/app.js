@@ -9,6 +9,7 @@ const aircrafts_router_1 = require("./routes/aircrafts.router");
 const users_router_1 = require("./routes/users.router");
 const login_router_1 = require("./routes/login.router");
 const dotenv_1 = __importDefault(require("dotenv"));
+const flights_router_1 = require("./routes/flights.router");
 dotenv_1.default.config({ path: "./config.env" });
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ app.use(cors());
     app.use("/aircrafts", aircrafts_router_1.aircraftsRouter);
     app.use("/users", users_router_1.usersRouter);
     app.use("/login", login_router_1.loginRouter);
+    app.use("/flights", flights_router_1.flightsRouter);
     // start the Express server
     app.listen(port, () => {
         console.log(`Server started at http://localhost:${port}`);

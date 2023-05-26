@@ -52,14 +52,17 @@ function connectToDatabase() {
         const aircraftsCollection = db.collection(process.env.AIRCRAFTS_COLLECTION_NAME);
         const usersCollection = db.collection(process.env.USERS_COLLECTION_NAME);
         const groupsCollection = db.collection(process.env.GROUPS_COLLECTION_NAME);
+        const flightsCollection = db.collection(process.env.FLIGHTS_COLLECTION_NAME);
         // Persist the connection to the aircrafts collection
         exports.collections.aircrafts = aircraftsCollection;
         exports.collections.users = usersCollection;
         exports.collections.groups = groupsCollection;
+        exports.collections.flights = flightsCollection;
         console.log(`Successfully connected to database: ${db.databaseName}`);
     });
 }
 exports.connectToDatabase = connectToDatabase;
+// TODO: DEAL WITH DATABASE VALIDATION
 // Update our existing collection with JSON schema validation so we know our documents will always match the shape of our aircraft model, even if added elsewhere.
 // For more information about schema validation, see this blog series: https://www.mongodb.com/blog/post/json-schema-validation--locking-down-your-model-the-smart-way
 // async function applySchemaValidation(db: mongoDB.Db) {

@@ -1,3 +1,4 @@
+import { PutBucketOwnershipControlsCommandInput } from "@aws-sdk/client-s3";
 import { ObjectId } from "mongodb";
 
 export default interface User {
@@ -8,6 +9,8 @@ export default interface User {
   lastName: string;
   groupId: ObjectId;
   emergencyContact?: EmergencyContact;
+  photoId?: PhotoId;
+  commercialLicense?: CommercialLicense;
 
   // TODO: THIS IS WIP
   role: "Admin" | "CFI" | "User";
@@ -35,4 +38,25 @@ export interface EmergencyContact {
   name: string;
   phone: string;
   relationship: string;
+}
+
+export interface PhotoId {
+  idnumber: number;
+  experationdate: Date;
+  //TODO add Image s3 HELP ME OVER LORD BEZOS SELL ME A SHOVEL ON MY WAY TO MINE THE GOLD
+  //Image Later
+  //Image Later
+}
+
+export interface CommercialLicense {
+  certificateType: string;
+  certification: number;
+  issuedDate: string;
+  noLongerCurrentDate: string;
+  // below  could possibly be an array
+  categoryClass: string;
+  // below  could possibly be an array
+  ratingsEndorsements: string;
+  // below  could possibly be an array
+  restrictionsLimitations: string;
 }

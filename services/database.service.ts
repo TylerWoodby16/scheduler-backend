@@ -3,11 +3,13 @@ import * as dotenv from "dotenv";
 import Aircraft from "../models/aircraft";
 import User from "../models/user";
 import Group from "../models/group";
+import Flight from "../models/flight";
 
 export const collections: {
   aircrafts?: mongoDB.Collection<Aircraft>;
   users?: mongoDB.Collection<User>;
   groups?: mongoDB.Collection<Group>;
+  flights?: mongoDB.Collection<Flight>;
 } = {};
 
 export async function connectToDatabase() {
@@ -36,14 +38,20 @@ export async function connectToDatabase() {
   const groupsCollection = db.collection<Group>(
     process.env.GROUPS_COLLECTION_NAME!
   );
+  const flightsCollection = db.collection<Flight>(
+    process.env.FLIGHTS_COLLECTION_NAME!
+  );
 
   // Persist the connection to the aircrafts collection
   collections.aircrafts = aircraftsCollection;
   collections.users = usersCollection;
   collections.groups = groupsCollection;
+  collections.flights = flightsCollection;
 
   console.log(`Successfully connected to database: ${db.databaseName}`);
 }
+
+// TODO: DEAL WITH DATABASE VALIDATION
 
 // Update our existing collection with JSON schema validation so we know our documents will always match the shape of our aircraft model, even if added elsewhere.
 // For more information about schema validation, see this blog series: https://www.mongodb.com/blog/post/json-schema-validation--locking-down-your-model-the-smart-way
