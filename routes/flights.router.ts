@@ -13,9 +13,12 @@ flightsRouter.use(express.json());
 flightsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
     const newFlight = req.body as Flight;
+    console.log(req.body);
     newFlight._id = new ObjectId();
     const groupId = req.headers["x-group-id"] as string;
     newFlight.groupId = new ObjectId(groupId);
+    // The Id in Mongo is different than the Id sent in
+    newFlight.aircraftId = new ObjectId();
 
     if (!collections.flights) throw new Error();
 

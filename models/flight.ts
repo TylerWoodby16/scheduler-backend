@@ -6,9 +6,9 @@ import User from "./user";
 export default interface Flight {
   _id: ObjectId;
   groupId: ObjectId;
-  userStudent: User;
-  userInstructor: User;
-  aircraft: Aircraft;
+  studentUserId: ObjectId;
+  instructorUserId: ObjectId;
+  aircraftId: ObjectId;
   time: number;
   type: string;
 }
