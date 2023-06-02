@@ -13,7 +13,7 @@ export default interface User {
   commercialLicense?: CommercialLicense;
 
   // TODO: THIS IS WIP
-  role: "Admin" | "CFI" | "User";
+  roles: Role[];
 
   // TODO: User permissions or security levels, etc.
 
@@ -60,3 +60,5 @@ export interface CommercialLicense {
   // below  could possibly be an array
   restrictionsLimitations: string;
 }
+
+export type Role = "Admin" | "CFI" | "Student";

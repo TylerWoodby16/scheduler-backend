@@ -24,7 +24,24 @@ exports.usersRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0,
     try {
         if (!database_service_1.collections.users)
             throw new Error();
-        const users = yield database_service_1.collections.users.find({}).toArray();
+        const groupId = req.headers["x-group-id"];
+        const users = yield database_service_1.collections.users
+            .find({ groupId: new mongodb_1.ObjectId(groupId), role: "Student" })
+            .toArray();
+        res.status(200).send(users);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
+exports.usersRouter.get("/cfis", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!database_service_1.collections.users)
+            throw new Error();
+        const groupId = req.headers["x-group-id"];
+        const users = yield database_service_1.collections.users
+            .find({ groupId: new mongodb_1.ObjectId(groupId), roles: "CFI" })
+            .toArray();
         res.status(200).send(users);
     }
     catch (error) {
@@ -42,6 +59,21 @@ exports.usersRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(void
             _id: new mongodb_1.ObjectId(id),
             groupId: new mongodb_1.ObjectId(groupId),
         });
+        res.status(200).send(users);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
+//literally the copied code from the get"/"" but this one causes a 500 error ??
+exports.usersRouter.get("/students", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!database_service_1.collections.users)
+            throw new Error();
+        const groupId = req.headers["x-group-id"];
+        const users = yield database_service_1.collections.users
+            .find({ groupId: new mongodb_1.ObjectId(groupId), role: "Student" })
+            .toArray();
         res.status(200).send(users);
     }
     catch (error) {
@@ -74,7 +106,7 @@ exports.usersRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
             firstName: newUser.firstName,
             lastName: newUser.lastName,
             groupId: group._id,
-            role: "Admin",
+            roles: ["Admin"],
         };
         yield database_service_1.collections.users.insertOne(completeUser);
         res

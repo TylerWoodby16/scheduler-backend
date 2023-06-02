@@ -13,8 +13,26 @@ usersRouter.use(express.json());
 usersRouter.get("/", verifyToken, async (req: Request, res: Response) => {
   try {
     if (!collections.users) throw new Error();
+    const groupId = req.headers["x-group-id"] as string;
 
-    const users = await collections.users.find({}).toArray();
+    const users = await collections.users
+      .find({ groupId: new ObjectId(groupId), role: "Student" })
+      .toArray();
+
+    res.status(200).send(users);
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+});
+
+usersRouter.get("/cfis", verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!collections.users) throw new Error();
+    const groupId = req.headers["x-group-id"] as string;
+
+    const users = await collections.users
+      .find({ groupId: new ObjectId(groupId), roles: "CFI" })
+      .toArray();
 
     res.status(200).send(users);
   } catch (error: any) {
@@ -39,6 +57,26 @@ usersRouter.get("/:id", verifyToken, async (req: Request, res: Response) => {
     res.status(500).send(error.message);
   }
 });
+
+//literally the copied code from the get"/"" but this one causes a 500 error ??
+usersRouter.get(
+  "/students",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      if (!collections.users) throw new Error();
+      const groupId = req.headers["x-group-id"] as string;
+
+      const users = await collections.users
+        .find({ groupId: new ObjectId(groupId), role: "Student" })
+        .toArray();
+
+      res.status(200).send(users);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
+  }
+);
 
 usersRouter.post("/", async (req: Request, res: Response) => {
   try {
@@ -69,7 +107,7 @@ usersRouter.post("/", async (req: Request, res: Response) => {
       firstName: newUser.firstName,
       lastName: newUser.lastName,
       groupId: group._id,
-      role: "Admin",
+      roles: ["Admin"],
     };
 
     await collections.users.insertOne(completeUser);
