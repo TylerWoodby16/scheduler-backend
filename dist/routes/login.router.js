@@ -37,7 +37,7 @@ exports.loginRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
         if (isValidPassword) {
             const token = jsonwebtoken_1.default.sign({
                 userId: foundUser._id,
-                userRole: foundUser.role,
+                userRole: foundUser.roles,
                 groupId: foundUser.groupId,
                 userName: foundUser.firstName,
             }, process.env.TOKEN_KEY, {

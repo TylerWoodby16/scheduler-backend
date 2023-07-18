@@ -26,7 +26,7 @@ exports.usersRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 0,
             throw new Error();
         const groupId = req.headers["x-group-id"];
         const users = yield database_service_1.collections.users
-            .find({ groupId: new mongodb_1.ObjectId(groupId), role: "Student" })
+            .find({ groupId: new mongodb_1.ObjectId(groupId), roles: "Student" })
             .toArray();
         res.status(200).send(users);
     }

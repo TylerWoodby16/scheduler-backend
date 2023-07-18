@@ -38,7 +38,7 @@ loginRouter.post("/", async (req: Request, res: Response) => {
       const token = jwt.sign(
         {
           userId: foundUser._id,
-          userRole: foundUser.role,
+          userRole: foundUser.roles,
           groupId: foundUser.groupId,
           userName: foundUser.firstName,
         },

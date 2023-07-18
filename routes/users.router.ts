@@ -4,7 +4,6 @@ import User from "../models/user";
 import bcrypt from "bcrypt";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
-import { runInNewContext } from "vm";
 
 export const usersRouter = express.Router();
 
@@ -16,7 +15,7 @@ usersRouter.get("/", verifyToken, async (req: Request, res: Response) => {
     const groupId = req.headers["x-group-id"] as string;
 
     const users = await collections.users
-      .find({ groupId: new ObjectId(groupId), role: "Student" })
+      .find({ groupId: new ObjectId(groupId), roles: "Student" })
       .toArray();
 
     res.status(200).send(users);
