@@ -3,7 +3,6 @@ import { collections } from "../services/database.service";
 import Aircraft, { AirworthinessDirective } from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
-import { adminOnly } from "../middlewares/adminCheck";
 import Flight from "../models/flight";
 
 export const flightsRouter = express.Router();
@@ -17,7 +16,9 @@ flightsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
     const groupId = req.headers["x-group-id"] as string;
 
     const flights = await collections.flights
-      .find({ groupId: new ObjectId(groupId) })
+      .find({
+        groupId: new ObjectId(groupId),
+      })
       .toArray();
 
     res.status(200).send(flights);
@@ -25,6 +26,30 @@ flightsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
     res.status(500).send(error.message);
   }
 });
+
+flightsRouter.get(
+  "/:date",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      if (!collections.flights) throw new Error();
+
+      const groupId = req.headers["x-group-id"] as string;
+      const date = req.params.date;
+
+      const flights = await collections.flights
+        .find({
+          groupId: new ObjectId(groupId),
+          date: date,
+        })
+        .toArray();
+
+      res.status(200).send(flights);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
+  }
+);
 
 flightsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
@@ -52,6 +77,7 @@ flightsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
 // make sure that I update this to make sense with the flight router
 // this is copy and pasted in from the aircraft router
 flightsRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
+  // TODO: ensure that ID in params and ID in body are the same. if not, send back 404.
   // const id = req?.params?.id;
   const id = req.body._id;
   const groupId = req.headers["x-group-id"] as string;
@@ -59,12 +85,10 @@ flightsRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
   // We need to enforce that id in params matches id in request body.
   try {
     const updatedFlight = req.body as Flight;
-    // console.log(updatedFlight);
     const query = {
       _id: new ObjectId(updatedFlight._id),
       groupId: new ObjectId(groupId),
     };
-    console.log(query);
 
     if (!collections.flights) throw new Error();
 
@@ -72,25 +96,16 @@ flightsRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
     // bc the id is turned into a string and this turns it back into a ObjectId('')
     updatedFlight._id = new ObjectId(updatedFlight._id);
     updatedFlight.groupId = new ObjectId(updatedFlight.groupId);
-    // console.log(updatedFlight);
-    // here it still has the correct _id
-
-    //To avoid multiple upserts, ensure that the query fields are uniquely indexed.
-    collections.flights.createIndex({ flights_id: id }, { unique: true });
 
     const result = await collections.flights.findOneAndReplace(
       query,
       updatedFlight
     );
-    // console.log(updatedFlight);
-    // console.log(result);
-    // Somewhere after this it creates a new flight with a new id
 
     result
       ? res.status(200).send(`Successfully updated aircraft with id ${id} }`)
       : res.status(304).send(`Aircraft with id: ${id} not updated`);
   } catch (error: any) {
-    console.error(error.message);
     res.status(400).send(error.message);
   }
 });

@@ -25,7 +25,27 @@ exports.flightsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 
             throw new Error();
         const groupId = req.headers["x-group-id"];
         const flights = yield database_service_1.collections.flights
-            .find({ groupId: new mongodb_1.ObjectId(groupId) })
+            .find({
+            groupId: new mongodb_1.ObjectId(groupId),
+        })
+            .toArray();
+        res.status(200).send(flights);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
+exports.flightsRouter.get("/:date", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!database_service_1.collections.flights)
+            throw new Error();
+        const groupId = req.headers["x-group-id"];
+        const date = req.params.date;
+        const flights = yield database_service_1.collections.flights
+            .find({
+            groupId: new mongodb_1.ObjectId(groupId),
+            date: date,
+        })
             .toArray();
         res.status(200).send(flights);
     }
@@ -56,38 +76,29 @@ exports.flightsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void
 // make sure that I update this to make sense with the flight router
 // this is copy and pasted in from the aircraft router
 exports.flightsRouter.put("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // TODO: ensure that ID in params and ID in body are the same. if not, send back 404.
     // const id = req?.params?.id;
     const id = req.body._id;
     const groupId = req.headers["x-group-id"];
     // We need to enforce that id in params matches id in request body.
     try {
         const updatedFlight = req.body;
-        // console.log(updatedFlight);
         const query = {
             _id: new mongodb_1.ObjectId(updatedFlight._id),
             groupId: new mongodb_1.ObjectId(groupId),
         };
-        console.log(query);
         if (!database_service_1.collections.flights)
             throw new Error();
         // TODO: WHY DO WE HAVE TO DO THIS??
         // bc the id is turned into a string and this turns it back into a ObjectId('')
         updatedFlight._id = new mongodb_1.ObjectId(updatedFlight._id);
         updatedFlight.groupId = new mongodb_1.ObjectId(updatedFlight.groupId);
-        // console.log(updatedFlight);
-        // here it still has the correct _id
-        //To avoid multiple upserts, ensure that the query fields are uniquely indexed.
-        database_service_1.collections.flights.createIndex({ flights_id: id }, { unique: true });
         const result = yield database_service_1.collections.flights.findOneAndReplace(query, updatedFlight);
-        // console.log(updatedFlight);
-        // console.log(result);
-        // Somewhere after this it creates a new flight with a new id
         result
             ? res.status(200).send(`Successfully updated aircraft with id ${id} }`)
             : res.status(304).send(`Aircraft with id: ${id} not updated`);
     }
     catch (error) {
-        console.error(error.message);
         res.status(400).send(error.message);
     }
 }));
