@@ -11,6 +11,6 @@ export default interface Flight {
   aircraftId: ObjectId;
   startTime: number;
   endTime: number;
-  type: string;
+  typeOfFlight: string;
   date: string;
 }

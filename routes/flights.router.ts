@@ -36,6 +36,7 @@ flightsRouter.get(
 
       const groupId = req.headers["x-group-id"] as string;
       const date = req.params.date;
+      console.log(date);
 
       const flights = await collections.flights
         .find({
@@ -85,6 +86,22 @@ flightsRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
   // We need to enforce that id in params matches id in request body.
   try {
     const updatedFlight = req.body as Flight;
+
+    // A hacky way to fix the front end problem <option> changing it to string
+    // ALSO WHAT how is NAN working like this ??
+
+    // if (isNaN(updatedFlight.startTime)) {
+    //   updatedFlight.startTime = Number(updatedFlight.startTime);
+    // } else {
+    //   updatedFlight.startTime = Number(updatedFlight.startTime);
+    // }
+
+    // if (isNaN(updatedFlight.endTime)) {
+    //   updatedFlight.endTime = Number(updatedFlight.endTime);
+    // } else {
+    //   updatedFlight.endTime = Number(updatedFlight.endTime);
+    // }
+
     const query = {
       _id: new ObjectId(updatedFlight._id),
       groupId: new ObjectId(groupId),
