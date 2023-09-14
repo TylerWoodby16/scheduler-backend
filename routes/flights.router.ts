@@ -36,7 +36,7 @@ flightsRouter.get(
 
       const groupId = req.headers["x-group-id"] as string;
       const date = req.params.date;
-      console.log(date);
+      console.log("this is the date" + date);
 
       const flights = await collections.flights
         .find({
@@ -58,6 +58,8 @@ flightsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
     newFlight._id = new ObjectId();
     const groupId = req.headers["x-group-id"] as string;
     newFlight.groupId = new ObjectId(groupId);
+
+    console.log("this is the startTime " + newFlight.startTime);
 
     if (!collections.flights) throw new Error();
     // console.log(newFlight);

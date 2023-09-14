@@ -41,7 +41,7 @@ exports.flightsRouter.get("/:date", auth_1.verifyToken, (req, res) => __awaiter(
             throw new Error();
         const groupId = req.headers["x-group-id"];
         const date = req.params.date;
-        console.log(date);
+        console.log("this is the date" + date);
         const flights = yield database_service_1.collections.flights
             .find({
             groupId: new mongodb_1.ObjectId(groupId),
@@ -60,6 +60,7 @@ exports.flightsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void
         newFlight._id = new mongodb_1.ObjectId();
         const groupId = req.headers["x-group-id"];
         newFlight.groupId = new mongodb_1.ObjectId(groupId);
+        console.log("this is the startTime " + newFlight.startTime);
         if (!database_service_1.collections.flights)
             throw new Error();
         // console.log(newFlight);

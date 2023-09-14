@@ -9,8 +9,8 @@ export default interface Flight {
   studentUserId: ObjectId;
   instructorUserId: ObjectId;
   aircraftId: ObjectId;
-  startTime: number;
-  endTime: number;
+  startTime: Date;
+  endTime: Date;
   typeOfFlight: string;
   date: string;
 }
