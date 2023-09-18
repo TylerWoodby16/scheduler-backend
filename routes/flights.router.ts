@@ -58,11 +58,14 @@ flightsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
     newFlight._id = new ObjectId();
     const groupId = req.headers["x-group-id"] as string;
     newFlight.groupId = new ObjectId(groupId);
-
-    console.log("this is the startTime " + newFlight.startTime);
+    // Force startTime and endTime to be Dates because they want to be strings.
+    newFlight.startTime = new Date(newFlight.startTime);
+    newFlight.endTime = new Date(newFlight.endTime);
+    // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
 
     if (!collections.flights) throw new Error();
-    // console.log(newFlight);
+    console.log(newFlight);
+
     const result = await collections.flights.insertOne(newFlight);
 
     result
@@ -115,6 +118,9 @@ flightsRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
     // bc the id is turned into a string and this turns it back into a ObjectId('')
     updatedFlight._id = new ObjectId(updatedFlight._id);
     updatedFlight.groupId = new ObjectId(updatedFlight.groupId);
+    // Force startTime and endTime to be Dates because they want to be strings.
+    updatedFlight.startTime = new Date(updatedFlight.startTime);
+    updatedFlight.endTime = new Date(updatedFlight.endTime);
 
     const result = await collections.flights.findOneAndReplace(
       query,
