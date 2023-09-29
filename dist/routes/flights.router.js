@@ -41,13 +41,16 @@ exports.flightsRouter.get("/:date", auth_1.verifyToken, (req, res) => __awaiter(
             throw new Error();
         const groupId = req.headers["x-group-id"];
         const date = req.params.date;
-        console.log("this is the date" + date);
         const flights = yield database_service_1.collections.flights
             .find({
             groupId: new mongodb_1.ObjectId(groupId),
             date: date,
         })
             .toArray();
+        // Sort the flights array by startTime.
+        flights.sort((flight1, flight2) => {
+            return flight1.startTime.getTime() - flight2.startTime.getTime();
+        });
         res.status(200).send(flights);
     }
     catch (error) {

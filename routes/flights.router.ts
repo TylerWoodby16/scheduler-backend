@@ -36,7 +36,6 @@ flightsRouter.get(
 
       const groupId = req.headers["x-group-id"] as string;
       const date = req.params.date;
-      console.log("this is the date" + date);
 
       const flights = await collections.flights
         .find({
@@ -44,6 +43,11 @@ flightsRouter.get(
           date: date,
         })
         .toArray();
+
+      // Sort the flights array by startTime.
+      flights.sort((flight1, flight2) => {
+        return flight1.startTime.getTime() - flight2.startTime.getTime();
+      });
 
       res.status(200).send(flights);
     } catch (error: any) {
