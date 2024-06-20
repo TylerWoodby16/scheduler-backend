@@ -5,6 +5,8 @@ import { usersRouter } from "./routes/users.router";
 import { loginRouter } from "./routes/login.router";
 import dotenv from "dotenv";
 import { flightsRouter } from "./routes/flights.router";
+import { personalizedDataRouter } from "./routes/personalizedData.router";
+import { lessonsRouter } from "./routes/lessons.router";
 
 dotenv.config({ path: "./config.env" });
 
@@ -21,6 +23,8 @@ connectToDatabase()
     app.use("/users", usersRouter);
     app.use("/login", loginRouter);
     app.use("/flights", flightsRouter);
+    app.use("/persanlizedData", personalizedDataRouter);
+    app.use("/lessons", lessonsRouter);
 
     // start the Express server
     app.listen(port, () => {

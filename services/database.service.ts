@@ -4,12 +4,16 @@ import Aircraft from "../models/aircraft";
 import User from "../models/user";
 import Group from "../models/group";
 import Flight from "../models/flight";
+import PersonalizedData from "../models/personalizedData";
+import Lesson from "../models/lesson";
 
 export const collections: {
   aircrafts?: mongoDB.Collection<Aircraft>;
   users?: mongoDB.Collection<User>;
   groups?: mongoDB.Collection<Group>;
   flights?: mongoDB.Collection<Flight>;
+  personalizedData?: mongoDB.Collection<PersonalizedData>;
+  lessons?: mongoDB.Collection<Lesson>;
 } = {};
 
 export async function connectToDatabase() {
@@ -41,51 +45,20 @@ export async function connectToDatabase() {
   const flightsCollection = db.collection<Flight>(
     process.env.FLIGHTS_COLLECTION_NAME!
   );
+  const personalizedDataCollection = db.collection<PersonalizedData>(
+    process.env.PERSONALIZEDDATACOLLECTION_COLLECTION_NAME!
+  );
+  const lessonsCollection = db.collection<Lesson>(
+    process.env.LESSONS_COLLECTION_NAME!
+  );
 
   // Persist the connection to the aircrafts collection
   collections.aircrafts = aircraftsCollection;
   collections.users = usersCollection;
   collections.groups = groupsCollection;
   collections.flights = flightsCollection;
+  collections.personalizedData = personalizedDataCollection;
+  collections.lessons = lessonsCollection;
 
   console.log(`Successfully connected to database: ${db.databaseName}`);
 }
-
-// TODO: DEAL WITH DATABASE VALIDATION
-
-// Update our existing collection with JSON schema validation so we know our documents will always match the shape of our aircraft model, even if added elsewhere.
-// For more information about schema validation, see this blog series: https://www.mongodb.com/blog/post/json-schema-validation--locking-down-your-model-the-smart-way
-// async function applySchemaValidation(db: mongoDB.Db) {
-//     const jsonSchema = {
-//         $jsonSchema: {
-//             bsonType: "object",
-//             required: ["name", "price", "category"],
-//             additionalProperties: false,
-//             properties: {
-//                 _id: {},
-//                 name: {
-//                     bsonType: "string",
-//                     description: "'name' is required and is a string",
-//                 },
-//                 price: {
-//                     bsonType: "number",
-//                     description: "'price' is required and is a number",
-//                 },
-//                 category: {
-//                     bsonType: "string",
-//                     description: "'category' is required and is a string",
-//                 },
-//             },
-//         },
-//     };
-
-//     // Try applying the modification to the collection, if the collection doesn't exist, create it
-//    await db.command({
-//         collMod: process.env.aircraftS_COLLECTION_NAME,
-//         validator: jsonSchema
-//     }).catch(async (error: mongoDB.MongoServerError) => {
-//         if (error.codeName === 'NamespaceNotFound') {
-//             await db.createCollection(process.env.aircraftS_COLLECTION_NAME, {validator: jsonSchema});
-//         }
-//     });
-// }
