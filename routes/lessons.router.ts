@@ -44,10 +44,30 @@ lessonsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
 
     const lessons = await collections.lessons
       // .find({ groupId: new ObjectId(groupId) })
-      .find({ sections: ["wtf"] })
+      .find()
       .toArray();
+    console.log(lessons);
+    console.log("was here");
 
     res.status(200).send(lessons);
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+});
+
+//TODO: make a get route with a specific id
+
+lessonsRouter.get("/:id", verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!collections.aircrafts) throw new Error();
+    const id = req.params.id;
+    const groupId = req.headers["x-group-id"] as string;
+
+    const lesson = await collections.lessons?.findOne({
+      _id: new ObjectId(id),
+    });
+
+    res.status(200).send(lesson);
   } catch (error: any) {
     res.status(500).send(error.message);
   }

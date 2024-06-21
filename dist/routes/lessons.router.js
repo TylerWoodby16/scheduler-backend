@@ -16,6 +16,7 @@ exports.lessonsRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const database_service_1 = require("../services/database.service");
 const auth_1 = require("../middlewares/auth");
+const mongodb_1 = require("mongodb");
 exports.lessonsRouter = express_1.default.Router();
 exports.lessonsRouter.use(express_1.default.json());
 exports.lessonsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -45,9 +46,28 @@ exports.lessonsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 
         const groupId = req.headers["x-group-id"];
         const lessons = yield database_service_1.collections.lessons
             // .find({ groupId: new ObjectId(groupId) })
-            .find({ sections: ["wtf"] })
+            .find()
             .toArray();
+        console.log(lessons);
+        console.log("was here");
         res.status(200).send(lessons);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
+//TODO: make a get route with a specific id
+exports.lessonsRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        if (!database_service_1.collections.aircrafts)
+            throw new Error();
+        const id = req.params.id;
+        const groupId = req.headers["x-group-id"];
+        const lesson = yield ((_a = database_service_1.collections.lessons) === null || _a === void 0 ? void 0 : _a.findOne({
+            _id: new mongodb_1.ObjectId(id),
+        }));
+        res.status(200).send(lesson);
     }
     catch (error) {
         res.status(500).send(error.message);
