@@ -21,18 +21,13 @@ exports.lessonsRouter = express_1.default.Router();
 exports.lessonsRouter.use(express_1.default.json());
 exports.lessonsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(res);
+        const newLesson = req.body;
+        newLesson._id = new mongodb_1.ObjectId();
+        const groupId = req.headers["x-group-id"];
+        newLesson.groupId = new mongodb_1.ObjectId(groupId);
         if (!database_service_1.collections.lessons)
             throw new Error("No lessons collection.");
-        // if (!collections.groups) throw new Error("No groups collection.");
-        // const group = { _id: new ObjectId(), name: "mga" };
-        // await collections.groups.insertOne(group);
-        //TODO: find out how to post the info that was posted as opposed to the hardcoded version
-        const completeLesson = {
-            sections: ["wtf"],
-        };
-        console.log(completeLesson);
-        yield database_service_1.collections.lessons.insertOne(completeLesson);
+        yield database_service_1.collections.lessons.insertOne(newLesson);
         res.status(201).send(`Successfully created a new lesson `);
     }
     catch (error) {
@@ -49,7 +44,6 @@ exports.lessonsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 
             .find()
             .toArray();
         console.log(lessons);
-        console.log("was here");
         res.status(200).send(lessons);
     }
     catch (error) {
@@ -71,5 +65,30 @@ exports.lessonsRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(vo
     }
     catch (error) {
         res.status(500).send(error.message);
+    }
+}));
+exports.lessonsRouter.delete("/:id", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const groupId = req.headers["x-group-id"];
+    if (!database_service_1.collections.lessons)
+        throw new Error();
+    // TODO: bring back the groupID HAHHA
+    // const query = { _id: new ObjectId(id), groupId: new ObjectId(groupId) };
+    const query = { _id: new mongodb_1.ObjectId(id) };
+    const result = yield database_service_1.collections.lessons.deleteOne(query);
+    try {
+        if (result && result.deletedCount) {
+            res.status(202).send(`Successfully removed lesson with id `);
+        }
+        else if (!result) {
+            res.status(400).send(`Failed to remove lesson with id `);
+        }
+        else if (!result.deletedCount) {
+            res.status(404).send(`Lesson with id does not exist`);
+        }
+    }
+    catch (error) {
+        console.error(error.message);
+        res.status(400).send(error.message);
     }
 }));

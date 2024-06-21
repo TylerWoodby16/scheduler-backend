@@ -12,23 +12,14 @@ lessonsRouter.use(express.json());
 
 lessonsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
-    console.log(res);
+    const newLesson = req.body as Lesson;
+    newLesson._id = new ObjectId();
+    const groupId = req.headers["x-group-id"] as string;
+    newLesson.groupId = new ObjectId(groupId);
 
     if (!collections.lessons) throw new Error("No lessons collection.");
-    // if (!collections.groups) throw new Error("No groups collection.");
 
-    // const group = { _id: new ObjectId(), name: "mga" };
-
-    // await collections.groups.insertOne(group);
-
-    //TODO: find out how to post the info that was posted as opposed to the hardcoded version
-
-    const completeLesson: Lesson = {
-      sections: ["wtf"],
-    };
-    console.log(completeLesson);
-
-    await collections.lessons.insertOne(completeLesson);
+    await collections.lessons.insertOne(newLesson);
 
     res.status(201).send(`Successfully created a new lesson `);
   } catch (error: any) {
@@ -47,7 +38,6 @@ lessonsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
       .find()
       .toArray();
     console.log(lessons);
-    console.log("was here");
 
     res.status(200).send(lessons);
   } catch (error: any) {
@@ -72,3 +62,33 @@ lessonsRouter.get("/:id", verifyToken, async (req: Request, res: Response) => {
     res.status(500).send(error.message);
   }
 });
+
+lessonsRouter.delete(
+  "/:id",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const groupId = req.headers["x-group-id"] as string;
+
+    if (!collections.lessons) throw new Error();
+    // TODO: bring back the groupID HAHHA
+    // const query = { _id: new ObjectId(id), groupId: new ObjectId(groupId) };
+
+    const query = { _id: new ObjectId(id) };
+
+    const result = await collections.lessons.deleteOne(query);
+
+    try {
+      if (result && result.deletedCount) {
+        res.status(202).send(`Successfully removed lesson with id `);
+      } else if (!result) {
+        res.status(400).send(`Failed to remove lesson with id `);
+      } else if (!result.deletedCount) {
+        res.status(404).send(`Lesson with id does not exist`);
+      }
+    } catch (error: any) {
+      console.error(error.message);
+      res.status(400).send(error.message);
+    }
+  }
+);
