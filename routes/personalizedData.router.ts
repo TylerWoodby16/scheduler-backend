@@ -4,6 +4,8 @@ import Aircraft, { AirworthinessDirective } from "../models/aircraft";
 import { verifyToken } from "../middlewares/auth";
 import { ObjectId } from "mongodb";
 import Flight from "../models/flight";
+import PersonalizedData from "../models/personalizedData";
+import { lessonsRouter } from "./lessons.router";
 
 export const personalizedDataRouter = express.Router();
 
@@ -18,13 +20,37 @@ personalizedDataRouter.get(
 
       const groupId = req.headers["x-group-id"] as string;
 
-      const flights = await collections.personalizedData
-        .find({
-          groupId: new ObjectId(groupId),
-        })
+      const personalizedData = await collections.personalizedData
+        .find()
         .toArray();
 
-      res.status(200).send(flights);
+      res.status(200).send(personalizedData);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
+  }
+);
+
+personalizedDataRouter.get(
+  "/:userid",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      console.log("made it here");
+
+      if (!collections.personalizedData) throw new Error();
+
+      const groupId = req.headers["x-group-id"] as string;
+      const lessonId = req.params.lessonId;
+      const userId = req.params.userid; // Access the user ID from the route parameter
+      console.log(userId + "look here");
+
+      // Query the personalized data using the user ID
+      const personalizedData = await collections.personalizedData
+        .find()
+        .toArray();
+
+      res.status(200).send(personalizedData);
     } catch (error: any) {
       res.status(500).send(error.message);
     }
@@ -66,19 +92,25 @@ personalizedDataRouter.post(
   verifyToken,
   async (req: Request, res: Response) => {
     try {
-      const newFlight = req.body as Flight;
-      newFlight._id = new ObjectId();
+      console.log("made it");
+      const { lessonId, studentUserId } = req.body as Flight;
+      const newPersonalizedData = {
+        lessonId: lessonId,
+        userId: studentUserId,
+      } as PersonalizedData;
+      // const newPersonalizedData = req.body as PersonalizedData;
+      newPersonalizedData._id = new ObjectId();
       const groupId = req.headers["x-group-id"] as string;
-      newFlight.groupId = new ObjectId(groupId);
+      // newPersonalizedData.groupId = new ObjectId(groupId);
       // Force startTime and endTime to be Dates because they want to be strings.
-      newFlight.startTime = new Date(newFlight.startTime);
-      newFlight.endTime = new Date(newFlight.endTime);
+
       // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
 
-      if (!collections.flights) throw new Error();
-      console.log(newFlight);
-
-      const result = await collections.flights.insertOne(newFlight);
+      if (!collections.personalizedData) throw new Error();
+      console.log(newPersonalizedData);
+      const result = await collections.personalizedData.insertOne(
+        newPersonalizedData
+      );
 
       result
         ? res
@@ -89,6 +121,7 @@ personalizedDataRouter.post(
         : res.status(500).send("Failed to create a new flight.");
     } catch (error: any) {
       res.status(400).send(error.message);
+      console.log("made it");
     }
   }
 );

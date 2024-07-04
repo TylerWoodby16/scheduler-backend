@@ -68,7 +68,6 @@ flightsRouter.post("/", verifyToken, async (req: Request, res: Response) => {
     // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
 
     if (!collections.flights) throw new Error();
-    console.log(newFlight);
 
     const result = await collections.flights.insertOne(newFlight);
 

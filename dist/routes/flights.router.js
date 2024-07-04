@@ -69,7 +69,6 @@ exports.flightsRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void
         // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
         if (!database_service_1.collections.flights)
             throw new Error();
-        console.log(newFlight);
         const result = yield database_service_1.collections.flights.insertOne(newFlight);
         result
             ? res

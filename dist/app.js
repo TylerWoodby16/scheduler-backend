@@ -24,7 +24,7 @@ app.use(cors());
     app.use("/users", users_router_1.usersRouter);
     app.use("/login", login_router_1.loginRouter);
     app.use("/flights", flights_router_1.flightsRouter);
-    app.use("/persanlizedData", personalizedData_router_1.personalizedDataRouter);
+    app.use("/personalizedData", personalizedData_router_1.personalizedDataRouter);
     app.use("/lessons", lessons_router_1.lessonsRouter);
     // start the Express server
     app.listen(port, () => {

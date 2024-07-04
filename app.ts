@@ -23,7 +23,7 @@ connectToDatabase()
     app.use("/users", usersRouter);
     app.use("/login", loginRouter);
     app.use("/flights", flightsRouter);
-    app.use("/persanlizedData", personalizedDataRouter);
+    app.use("/personalizedData", personalizedDataRouter);
     app.use("/lessons", lessonsRouter);
 
     // start the Express server

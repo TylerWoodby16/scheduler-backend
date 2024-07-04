@@ -24,12 +24,29 @@ exports.personalizedDataRouter.get("/", auth_1.verifyToken, (req, res) => __awai
         if (!database_service_1.collections.personalizedData)
             throw new Error();
         const groupId = req.headers["x-group-id"];
-        const flights = yield database_service_1.collections.personalizedData
-            .find({
-            groupId: new mongodb_1.ObjectId(groupId),
-        })
+        const personalizedData = yield database_service_1.collections.personalizedData
+            .find()
             .toArray();
-        res.status(200).send(flights);
+        res.status(200).send(personalizedData);
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}));
+exports.personalizedDataRouter.get("/:userid", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log("made it here");
+        if (!database_service_1.collections.personalizedData)
+            throw new Error();
+        const groupId = req.headers["x-group-id"];
+        const lessonId = req.params.lessonId;
+        const userId = req.params.userid; // Access the user ID from the route parameter
+        console.log(userId + "look here");
+        // Query the personalized data using the user ID
+        const personalizedData = yield database_service_1.collections.personalizedData
+            .find()
+            .toArray();
+        res.status(200).send(personalizedData);
     }
     catch (error) {
         res.status(500).send(error.message);
@@ -60,18 +77,22 @@ exports.personalizedDataRouter.get("/:date", auth_1.verifyToken, (req, res) => _
 }));
 exports.personalizedDataRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const newFlight = req.body;
-        newFlight._id = new mongodb_1.ObjectId();
+        console.log("made it");
+        const { lessonId, studentUserId } = req.body;
+        const newPersonalizedData = {
+            lessonId: lessonId,
+            userId: studentUserId,
+        };
+        // const newPersonalizedData = req.body as PersonalizedData;
+        newPersonalizedData._id = new mongodb_1.ObjectId();
         const groupId = req.headers["x-group-id"];
-        newFlight.groupId = new mongodb_1.ObjectId(groupId);
+        // newPersonalizedData.groupId = new ObjectId(groupId);
         // Force startTime and endTime to be Dates because they want to be strings.
-        newFlight.startTime = new Date(newFlight.startTime);
-        newFlight.endTime = new Date(newFlight.endTime);
         // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
-        if (!database_service_1.collections.flights)
+        if (!database_service_1.collections.personalizedData)
             throw new Error();
-        console.log(newFlight);
-        const result = yield database_service_1.collections.flights.insertOne(newFlight);
+        console.log(newPersonalizedData);
+        const result = yield database_service_1.collections.personalizedData.insertOne(newPersonalizedData);
         result
             ? res
                 .status(201)
@@ -80,6 +101,7 @@ exports.personalizedDataRouter.post("/", auth_1.verifyToken, (req, res) => __awa
     }
     catch (error) {
         res.status(400).send(error.message);
+        console.log("made it");
     }
 }));
 // make sure that I update this to make sense with the flight router
