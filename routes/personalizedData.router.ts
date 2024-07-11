@@ -36,19 +36,23 @@ personalizedDataRouter.get(
   verifyToken,
   async (req: Request, res: Response) => {
     try {
-      console.log("made it here");
-
       if (!collections.personalizedData) throw new Error();
 
       const groupId = req.headers["x-group-id"] as string;
       const lessonId = req.params.lessonId;
       const userId = req.params.userid; // Access the user ID from the route parameter
-      console.log(userId + "look here");
 
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
       // Query the personalized data using the user ID
       const personalizedData = await collections.personalizedData
-        .find()
+        .find({ userId })
         .toArray();
+
+      if (!personalizedData || personalizedData.length === 0) {
+        return res.status(404).json({ error: "Personalized data not found" });
+      }
 
       res.status(200).send(personalizedData);
     } catch (error: any) {

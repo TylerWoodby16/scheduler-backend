@@ -37,7 +37,6 @@ lessonsRouter.get("/", verifyToken, async (req: Request, res: Response) => {
       // .find({ groupId: new ObjectId(groupId) })
       .find()
       .toArray();
-    console.log(lessons);
 
     res.status(200).send(lessons);
   } catch (error: any) {
@@ -52,7 +51,7 @@ lessonsRouter.get("/:id", verifyToken, async (req: Request, res: Response) => {
     if (!collections.aircrafts) throw new Error();
     const id = req.params.id;
     const groupId = req.headers["x-group-id"] as string;
-
+    console.log("made it to the correct backedn");
     const lesson = await collections.lessons?.findOne({
       _id: new ObjectId(id),
     });

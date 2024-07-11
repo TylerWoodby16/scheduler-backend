@@ -43,7 +43,6 @@ exports.lessonsRouter.get("/", auth_1.verifyToken, (req, res) => __awaiter(void 
             // .find({ groupId: new ObjectId(groupId) })
             .find()
             .toArray();
-        console.log(lessons);
         res.status(200).send(lessons);
     }
     catch (error) {
@@ -58,6 +57,7 @@ exports.lessonsRouter.get("/:id", auth_1.verifyToken, (req, res) => __awaiter(vo
             throw new Error();
         const id = req.params.id;
         const groupId = req.headers["x-group-id"];
+        console.log("made it to the correct backedn");
         const lesson = yield ((_a = database_service_1.collections.lessons) === null || _a === void 0 ? void 0 : _a.findOne({
             _id: new mongodb_1.ObjectId(id),
         }));

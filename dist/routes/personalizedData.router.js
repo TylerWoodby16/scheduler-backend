@@ -35,17 +35,21 @@ exports.personalizedDataRouter.get("/", auth_1.verifyToken, (req, res) => __awai
 }));
 exports.personalizedDataRouter.get("/:userid", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("made it here");
         if (!database_service_1.collections.personalizedData)
             throw new Error();
         const groupId = req.headers["x-group-id"];
         const lessonId = req.params.lessonId;
         const userId = req.params.userid; // Access the user ID from the route parameter
-        console.log(userId + "look here");
+        if (!userId) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
         // Query the personalized data using the user ID
         const personalizedData = yield database_service_1.collections.personalizedData
-            .find()
+            .find({ userId })
             .toArray();
+        if (!personalizedData || personalizedData.length === 0) {
+            return res.status(404).json({ error: "Personalized data not found" });
+        }
         res.status(200).send(personalizedData);
     }
     catch (error) {
