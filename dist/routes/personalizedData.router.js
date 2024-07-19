@@ -82,10 +82,42 @@ exports.personalizedDataRouter.get("/:date", auth_1.verifyToken, (req, res) => _
 exports.personalizedDataRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("made it");
+        // ok have to put the fucking personalized content in here
         const { lessonId, studentUserId } = req.body;
         const newPersonalizedData = {
             lessonId: lessonId,
             userId: studentUserId,
+        };
+        // const newPersonalizedData = req.body as PersonalizedData;
+        newPersonalizedData._id = new mongodb_1.ObjectId();
+        const groupId = req.headers["x-group-id"];
+        // newPersonalizedData.groupId = new ObjectId(groupId);
+        // Force startTime and endTime to be Dates because they want to be strings.
+        // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
+        if (!database_service_1.collections.personalizedData)
+            throw new Error();
+        console.log(newPersonalizedData);
+        const result = yield database_service_1.collections.personalizedData.insertOne(newPersonalizedData);
+        result
+            ? res
+                .status(201)
+                .send(`Successfully created a new flight with id ${result.insertedId}`)
+            : res.status(500).send("Failed to create a new flight.");
+    }
+    catch (error) {
+        res.status(400).send(error.message);
+        console.log("made it");
+    }
+}));
+exports.personalizedDataRouter.post("/fromFlightModal", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log("made it");
+        // ok have to put the fucking personalized content in here
+        const { lessonId, userId, personalizedContent } = req.body;
+        const newPersonalizedData = {
+            lessonId: lessonId,
+            userId: userId,
+            personalizedContent: personalizedContent,
         };
         // const newPersonalizedData = req.body as PersonalizedData;
         newPersonalizedData._id = new mongodb_1.ObjectId();

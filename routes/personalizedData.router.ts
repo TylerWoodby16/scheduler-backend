@@ -97,10 +97,53 @@ personalizedDataRouter.post(
   async (req: Request, res: Response) => {
     try {
       console.log("made it");
+      // ok have to put the fucking personalized content in here
       const { lessonId, studentUserId } = req.body as Flight;
       const newPersonalizedData = {
         lessonId: lessonId,
         userId: studentUserId,
+      } as PersonalizedData;
+      // const newPersonalizedData = req.body as PersonalizedData;
+      newPersonalizedData._id = new ObjectId();
+      const groupId = req.headers["x-group-id"] as string;
+      // newPersonalizedData.groupId = new ObjectId(groupId);
+      // Force startTime and endTime to be Dates because they want to be strings.
+
+      // TODO: MAKE SURE AIRCRAFTID IS OBJECT ID.
+
+      if (!collections.personalizedData) throw new Error();
+      console.log(newPersonalizedData);
+      const result = await collections.personalizedData.insertOne(
+        newPersonalizedData
+      );
+
+      result
+        ? res
+            .status(201)
+            .send(
+              `Successfully created a new flight with id ${result.insertedId}`
+            )
+        : res.status(500).send("Failed to create a new flight.");
+    } catch (error: any) {
+      res.status(400).send(error.message);
+      console.log("made it");
+    }
+  }
+);
+
+personalizedDataRouter.post(
+  "/fromFlightModal",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      console.log("made it");
+      // ok have to put the fucking personalized content in here
+      const { lessonId, userId, personalizedContent } =
+        req.body as PersonalizedData;
+      const newPersonalizedData = {
+        lessonId: lessonId,
+        userId: userId,
+        personalizedContent: personalizedContent,
       } as PersonalizedData;
       // const newPersonalizedData = req.body as PersonalizedData;
       newPersonalizedData._id = new ObjectId();
