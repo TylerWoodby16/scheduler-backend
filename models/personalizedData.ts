@@ -6,5 +6,5 @@ export default interface PersonalizedData {
   // Might be objectId but unsure atm
   userId: string;
   lessonId: string;
-  personalizedContent: any;
+  personalizedContent?: any;
 }

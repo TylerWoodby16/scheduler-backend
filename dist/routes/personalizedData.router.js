@@ -79,6 +79,7 @@ exports.personalizedDataRouter.get("/:date", auth_1.verifyToken, (req, res) => _
         res.status(500).send(error.message);
     }
 }));
+// this is the one i use lol
 exports.personalizedDataRouter.post("/", auth_1.verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("made it");
