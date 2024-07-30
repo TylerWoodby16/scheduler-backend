@@ -1,5 +1,6 @@
 import { PutBucketOwnershipControlsCommandInput } from "@aws-sdk/client-s3";
 import { ObjectId } from "mongodb";
+import Lesson from "./lesson";
 
 export default interface User {
   _id: ObjectId;
@@ -11,6 +12,16 @@ export default interface User {
   emergencyContact?: EmergencyContact;
   photoId?: PhotoId;
   commercialLicense?: CommercialLicense;
+  medicalCertificate?: MedicalCertificate;
+  flightInstructorCertificate?: FlightInstructorCertifcate;
+  tsaCitizenship?: TSACitizenship;
+  tsaSecurity?: TSASecurity;
+  currency141?: Currency141;
+  endorsements?: Endorsements;
+  aircraftCheckout?: AircraftCheckOut;
+  lessonId?: string;
+  mapOfLessons?: MapOfLessons;
+  lesson?: any;
 
   // TODO: THIS IS WIP
   roles: Role[];
@@ -33,6 +44,10 @@ export default interface User {
   // Step 2 - Add groupId to planes. All planes must be associated with a group.
   // When we perform ANY operation (post, put, get, delete), they should be "associated"/"restricted" based on groupId.
   // HINT: Remember that we can add more headers in the auth middleware if we want.
+}
+
+export interface MapOfLessons {
+  mapOfLessons: Map<string, Lesson[]>;
 }
 export interface EmergencyContact {
   name: string;
@@ -59,6 +74,55 @@ export interface CommercialLicense {
   ratingsEndorsements: string;
   // below  could possibly be an array
   restrictionsLimitations: string;
+}
+
+export interface MedicalCertificate {
+  class: string;
+  number: number;
+  dateOfBirth: string;
+  examDate: string;
+  firstClassPrivExp: string;
+  secondClassPrivExp: string;
+  thirdClassPrivExp: string;
+  restrictionsLimitations: string;
+}
+
+export interface FlightInstructorCertifcate {
+  number: number;
+  issuedDate: string;
+  expiration: string;
+  categoryClass: string;
+  ratingsEndorsements: string;
+  restrictionsLimitations: string;
+}
+
+export interface TSACitizenship {
+  type: string;
+
+  //TODO add Image s3 HELP ME OVER LORD BEZOS SELL ME A SHOVEL ON MY WAY TO MINE THE GOLD
+  //Image Later
+  //Image Later
+}
+
+export interface TSASecurity {
+  date: number;
+  expiration: string;
+  employeId: number;
+  trainer: string;
+}
+
+export interface Currency141 {
+  expiration: string;
+  //Image Later
+}
+
+export interface Endorsements {
+  date: string;
+  nameOfEndorsments: string;
+}
+
+export interface AircraftCheckOut {
+  makeModel: string;
 }
 
 export type Role = "Admin" | "CFI" | "Student";

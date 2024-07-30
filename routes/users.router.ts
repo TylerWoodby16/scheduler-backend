@@ -153,3 +153,50 @@ usersRouter.put("/:id", verifyToken, async (req: Request, res: Response) => {
     res.status(400).send(error.message);
   }
 });
+
+// TODO: consoladate this with the above endpoint
+// I need to start cleaning
+// bc adding more code to fix problem unnecessarily is low vibrational
+
+usersRouter.put(
+  "/lessonadd/:id",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    let id = req.body._id;
+    const groupId = req.headers["x-group-id"] as string;
+    console.log("I have made it to the backend point i wanted to ");
+    //TODO destructure object like i have done in past
+    // where is that ?? again
+    // demitia lookin aaaaaaa
+    try {
+      let user = req.body as User;
+      console.log(user);
+      const query = {
+        _id: new ObjectId(id),
+        groupId: new ObjectId(groupId),
+      };
+
+      // Enforce that URL params and request body ID match.
+      if (id !== req.params.id) {
+        res.status(400).send("Param Id does not match req body Id");
+        return;
+      }
+
+      if (!collections.users) throw new Error("No users collection.");
+
+      // TODO: WHY DO WE HAVE TO DO THIS??
+      user._id = new ObjectId(user._id);
+      user.groupId = new ObjectId(user.groupId);
+
+      let updateResult = await collections.users.findOneAndReplace(query, user);
+      console.log(updateResult);
+
+      updateResult
+        ? res.status(200).send(`Successfully updated user with id ${id}`)
+        : res.status(404).send(`User with id: ${id} not found`);
+    } catch (error: any) {
+      console.error(error.message);
+      res.status(400).send(error.message);
+    }
+  }
+);
