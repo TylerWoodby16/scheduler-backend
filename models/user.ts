@@ -20,8 +20,9 @@ export default interface User {
   endorsements?: Endorsements;
   aircraftCheckout?: AircraftCheckOut;
   lessonId?: string;
-  mapOfLessons?: MapOfLessons;
+
   lesson?: any;
+  lessonScores?: any;
 
   // TODO: THIS IS WIP
   roles: Role[];

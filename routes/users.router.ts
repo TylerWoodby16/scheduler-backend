@@ -165,12 +165,13 @@ usersRouter.put(
     let id = req.body._id;
     const groupId = req.headers["x-group-id"] as string;
     console.log("I have made it to the backend point i wanted to ");
-    //TODO destructure object like i have done in past
-    // where is that ?? again
-    // demitia lookin aaaaaaa
+    //TODO: have seen bug where it was not posting the lesson
+    // keep eye on this
+
+    console.log(req.body);
     try {
       let user = req.body as User;
-      console.log(user);
+
       const query = {
         _id: new ObjectId(id),
         groupId: new ObjectId(groupId),
