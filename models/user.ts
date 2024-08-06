@@ -22,7 +22,7 @@ export default interface User {
   lessonId?: string;
 
   lesson?: any;
-  lessonScores?: any;
+  lessonScores?: any[];
 
   // TODO: THIS IS WIP
   roles: Role[];
